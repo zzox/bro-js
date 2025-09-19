@@ -1,0 +1,15 @@
+{
+  "name": "bro-js",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && bun build ./index.html --outdir dist",
+    "test": "bun src/test/values.test.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vite": "^7.1.6"
+  }
+}
