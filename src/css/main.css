@@ -1,0 +1,56 @@
+:root {
+  /* --bg-color: #000; */
+  /* --bg-color: #0e0e0e; */
+  /* --dark-bg-color: #586e75; used for disabled */
+  /* --color: whitesmoke; */
+  --bg-color: #26201d;
+  --dark-bg-color: #52534c; /* used for disabled */
+  --color: #cbd1be;
+  --font-size: 16px;
+  /* --top: 999; */
+}
+
+body {
+  font-family: monospace;
+  background-color: var(--bg-color);
+  color: var(--color);
+  margin: 0;
+  /* overflow-y: hidden;
+  overflow-x: hidden; */
+}
+
+main {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+canvas {
+  image-rendering: pixelated;
+}
+
+/* nav {
+  display: flex;
+  justify-content: space-between;
+  height: 3em;
+} */
+
+#chars {
+  flex-basis: 30%;
+}
+
+#battle {
+  flex-basis: 40%;
+}
+
+#logs {
+  display: flex;
+  flex-basis: 30%;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.box {
+  margin: 1em;
+  border: .25em solid var(--color);
+}

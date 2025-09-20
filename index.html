@@ -2,13 +2,17 @@
 <html>
 <head>
   <title>metablood</title>
-  <!-- <link rel="stylesheet" href="./src/css/main.css"> -->
+  <link rel="stylesheet" href="./src/css/main.css">
   <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
   <main>
-    <canvas width="240" height="324" id="main-canvas"></canvas>
+    <div id="chars"></div>
+    <div id="battle">
+      <canvas width="154" height="154" id="main-canvas"></canvas>
+    </div>
+    <div id="logs"></div>
   </main>
   <script type="module" src="./src/main.ts"></script>
 </body>
