@@ -1,6 +1,8 @@
 import { names } from './data/names'
 import { addLog } from './ui/logs'
-import { forEachGI, makeGrid } from './world/grid'
+import { Actor } from './world/actor'
+import { forEachGI, makeGrid, TileType } from './world/grid'
+import { Room } from './world/room'
 
 console.log('bro')
 // move to new file? or just new branch
@@ -47,7 +49,7 @@ const run = async () => {
   image.src = './assets/tiles.png'
   console.log(image)
 
-  const grid = makeGrid(11, 11)
+  // const grid = makeGrid(11, 11)
 
   // from: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Using_images
   // await Promise.all(
@@ -58,11 +60,16 @@ const run = async () => {
   // );
 
   image.addEventListener('load', () => {
-    forEachGI(grid, (x, y, item) => {
-      console.log(x * 14, y * 14)
-      Math.random() < 0.05 && ctx.drawImage(image, 0, 192, 12, 12, x * 14 + 1, y * 14 + 1, 12, 12)
-      addLog('asdf')
+    const room = new Room([new Actor(), new Actor(), new Actor(), new Actor()])
+    console.log(room)
+    forEachGI(room.grid, (x, y, item) => {
+      if (item == TileType.Wall) {
+        ctx.drawImage(image, 0, 192, 12, 12, x * 14 + 1, y * 14 + 1, 12, 12)
+      }
     })
+
+    addLog('asdf')
+    next()
   })
 }
 

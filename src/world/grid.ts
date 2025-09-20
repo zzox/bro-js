@@ -1,4 +1,4 @@
-enum TileType {
+export enum TileType {
   Wall = 'wall',
   Exit = 'exit',
   Entrance = 'entrance',
@@ -25,3 +25,11 @@ export const forEachGI = (grid:Grid, cb:(x:number, y:number, item:GridItem) => v
     cb(i % grid.width, Math.floor(i / grid.width), grid.items[i])
   })
 }
+
+export const mapGI = (grid:Grid, cb:(x:number, y:number, item:GridItem) => GridItem):Grid => (
+  {
+    width: grid.width,
+    height: grid.height,
+    items: grid.items.map((_, i) => cb(i % grid.width, Math.floor(i / grid.width), grid.items[i]))
+  }
+)
