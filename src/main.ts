@@ -1,4 +1,5 @@
 import { names } from './data/names'
+import { addLog } from './ui/logs'
 import { forEachGI, makeGrid } from './world/grid'
 
 console.log('bro')
@@ -60,6 +61,7 @@ const run = async () => {
     forEachGI(grid, (x, y, item) => {
       console.log(x * 14, y * 14)
       Math.random() < 0.05 && ctx.drawImage(image, 0, 192, 12, 12, x * 14 + 1, y * 14 + 1, 12, 12)
+      addLog('asdf')
     })
   })
 }
