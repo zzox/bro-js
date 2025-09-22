@@ -1,6 +1,10 @@
-import { names } from "../data/names"
+import { names } from '../data/names'
 
-type BattleData = {}
+type BattleData = {
+  stateTime:number
+  x:number
+  y:number
+}
 
 export class Actor {
 

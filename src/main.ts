@@ -30,7 +30,9 @@ resizeCanvas()
 
 const ctx = canvas!.getContext('2d') as CanvasRenderingContext2D
 
-ctx.fillStyle = '#26201d'
+const bgColor = '#160712'
+
+ctx.fillStyle = bgColor
 ctx.fillRect(0, 0, canvas.width, canvas.height)
 
 ctx.font = '16px serif'
@@ -41,12 +43,54 @@ ctx.fillText(`${names[Math.floor(Math.random() * names.length)]} BroOoOoOoOoOo`,
 // border type and color for pre-plays
   // needs to be turned on in menu
 
+
+let image:HTMLImageElement
+let room:Room
+
+const update = () => {
+  // Room.update()
+  room.update()
+}
+
+// this assumes the same image for all
+// we draw a 12x12 image on a grid of 14
+const drawTile = (/*image:HTMLImageElement*/ index:number, x:number, y:number) => {
+  const sx = index * 12 % image.width
+  const sy = Math.floor(index * 12 / image.width) * 12
+  ctx.drawImage(image, sx, sy, 12, 12, x * 14 + 1, y * 14 + 1, 12, 12)
+}
+
+const draw = () => {
+  ctx.fillStyle = bgColor
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  forEachGI(room.grid, (x, y, item) => {
+    if (item == TileType.Wall) {
+      drawTile(4, x, y)
+    }
+  })
+
+  room.actors.forEach((actor) => {
+    drawTile(0, actor.bd.x, actor.bd.y)
+  })
+}
+
 const next = () => {
+  update()
+  draw()
+
   requestAnimationFrame(next)
 }
 
+const ready = () => {
+  room = new Room([new Actor(), new Actor(), new Actor(), new Actor()])
+  console.log(room)
+
+  addLog('asdf')
+  next()
+}
+
 const run = async () => {
-  const image = new Image()
+  image = new Image()
   image.src = './assets/tiles.png'
   console.log(image)
 
@@ -60,18 +104,7 @@ const run = async () => {
   //   ),
   // );
 
-  image.addEventListener('load', () => {
-    const room = new Room([new Actor(), new Actor(), new Actor(), new Actor()])
-    console.log(room)
-    forEachGI(room.grid, (x, y, item) => {
-      if (item == TileType.Wall) {
-        ctx.drawImage(image, 0, 192, 12, 12, x * 14 + 1, y * 14 + 1, 12, 12)
-      }
-    })
-
-    addLog('asdf')
-    next()
-  })
+  image.addEventListener('load', ready)
 }
 
 run()
