@@ -11,11 +11,13 @@ export class Actor {
   name:string
 
   health:number
+  maxHealth:number
 
   battleData!:BattleData
 
   constructor () {
-    this.health = 0
+    this.health = 75
+    this.maxHealth = 100
 
     // this.battleData = {}
     this.name = names[Math.floor(Math.random() * names.length)]

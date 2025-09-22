@@ -18,15 +18,27 @@ const genEnemies = ():Actor[] => {
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
 
+enum RoomEventType {
+  Death,
+  Damage,
+}
+
+export type RoomEvent = {
+  type:RoomEventType
+  amount:number
+}
+
 export class Room {
   grid:Grid<TileItem>
 
   actors:Actor[] = []
 
-  exit:Vec2 = vec2(9, 1);
-  entrance:Vec2 = vec2(2, 8);
+  exit:Vec2 = vec2(9, 1)
+  entrance:Vec2 = vec2(2, 8)
 
-  constructor (playerTeam:Actor[]) {
+  onEvent:(e:RoomEvent) => void
+
+  constructor (playerTeam:Actor[], onEvent:(e:RoomEvent) => void) {
     console.log(playerTeam)
     const enemies = genEnemies()
 
@@ -66,24 +78,12 @@ export class Room {
     })
 
     this.actors = this.actors.concat(playerTeam, enemies)
+
+    this.onEvent = onEvent
   }
 
   update ():RoomResult | null {
-    this.actors.forEach(actor => {
-      actor.bd.stateTime--
-      if (actor.bd.stateTime > 0) return
-
-      console.log(this.makeMap(actor))
-
-      const path = pathfind(this.makeMap(actor), vec2(actor.bd.x, actor.bd.y), this.exit, Diagonal, true)
-      if (!path) throw 'Path not found'
-
-      const items = recycle(path)
-
-      actor.bd.x = items[0].x
-      actor.bd.y = items[0].y
-      actor.bd.stateTime = 10 + Math.floor(Math.random() * 10)
-    })
+    this.actors.forEach(this.step)
 
     // remove actor at exit
     const [found] = this.actors.filter(actor => isPosEq(actor.bd.x, actor.bd.y, this.exit.x, this.exit.y))
@@ -97,11 +97,28 @@ export class Room {
     if (this.getPlayers().length === 0) {
       return RoomResult.PlayersGone
     }
-    if (this.getEnemies().length === 0) {
-      return RoomResult.EnemiesGone
-    }
+    // if (this.getEnemies().length === 0) {
+    //   return RoomResult.EnemiesGone
+    // }
 
     return null
+  }
+
+  step = (actor:Actor) => {
+    actor.bd.stateTime--
+    if (actor.bd.stateTime > 0) return
+
+    const path = pathfind(this.makeMap(actor), vec2(actor.bd.x, actor.bd.y), this.exit, Diagonal, true)
+    if (!path) throw 'Path not found'
+
+    const items = recycle(path)
+
+    // TEMP:
+    actor.health -= 1
+
+    actor.bd.x = items[0].x
+    actor.bd.y = items[0].y
+    actor.bd.stateTime = 10 + Math.floor(Math.random() * 10)
   }
 
   makeMap (actor:Actor) {

@@ -1,8 +1,9 @@
 import { names } from './data/names'
 import { addLog } from './ui/logs'
+import { updatePlayerUi } from './ui/player-ui'
 import { Actor } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
-import { Room, RoomResult } from './world/room'
+import { Room, RoomEvent, RoomResult } from './world/room'
 
 console.log('bro')
 // move to new file? or just new branch
@@ -48,10 +49,15 @@ ctx.fillText(`${names[Math.floor(Math.random() * names.length)]} BroOoOoOoOoOo`,
 let image:HTMLImageElement
 let room:Room
 let roomActive:boolean = true
+let actors:Actor[]
 
 const handleRoomResult = (result:RoomResult) => {
   console.log(result)
   roomActive = false
+}
+
+const handleRoomEvent = (event:RoomEvent) => {
+  updatePlayerUi(actors)
 }
 
 const update = () => {
@@ -98,7 +104,9 @@ const next = () => {
 }
 
 const ready = () => {
-  room = new Room([new Actor(), new Actor(), new Actor(), new Actor()])
+  actors = [new Actor(), new Actor(), new Actor(), new Actor()]
+  updatePlayerUi(actors)
+  room = new Room(actors, handleRoomEvent)
   console.log(room)
 
   addLog('asdf')
