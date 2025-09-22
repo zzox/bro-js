@@ -1,14 +1,19 @@
+import { vec2, Vec2 } from '../data/globals'
+import { Diagonal, pathfind } from '../util/pathfind'
 import { Actor } from './actor'
-import { forEachGI, Grid, makeGrid, mapGI, TileType } from './grid'
+import { forEachGI, Grid, TileItem, makeGrid, mapGI, TileType, makeIntGrid } from './grid'
 
 const genEnemies = ():Actor[] => {
   return [new Actor()]
 }
 
 export class Room {
-  grid:Grid
+  grid:Grid<TileItem>
 
   actors:Actor[] = []
+
+  exit:Vec2 = vec2(9, 1);
+  entrance:Vec2 = vec2(2, 8);
 
   constructor (playerTeam:Actor[]) {
     console.log(playerTeam)
@@ -23,15 +28,15 @@ export class Room {
     })
 
     playerTeam.forEach(player => {
-      player.battleData = { 
-        x: 5,
-        y: 5,
+      player.battleData = {
+        x: this.entrance.x,
+        y: this.entrance.y,
         stateTime: 10
       }
     })
 
     enemies.forEach(enemy => {
-      enemy.battleData = { 
+      enemy.battleData = {
         x: 1,
         y: 1,
         stateTime: 10
@@ -43,6 +48,7 @@ export class Room {
 
   update () {
     this.actors.forEach(actor => {
+      console.log(pathfind(makeIntGrid(11, 11), vec2(actor.bd.x, actor.bd.y), this.exit, Diagonal, true))
       actor.bd.stateTime--
       if (actor.bd.stateTime > 0) return
 

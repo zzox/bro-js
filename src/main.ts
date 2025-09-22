@@ -30,7 +30,8 @@ resizeCanvas()
 
 const ctx = canvas!.getContext('2d') as CanvasRenderingContext2D
 
-const bgColor = '#160712'
+const bgColor = window.getComputedStyle(document.body).getPropertyValue('--bg-color')
+console.log(bgColor)
 
 ctx.fillStyle = bgColor
 ctx.fillRect(0, 0, canvas.width, canvas.height)
