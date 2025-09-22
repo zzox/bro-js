@@ -2,11 +2,12 @@ import { vec2, Vec2 } from '../data/globals'
 import { Diagonal, pathfind } from '../util/pathfind'
 import { recycle } from '../util/utils'
 import { Actor } from './actor'
-import { Grid, TileItem, makeGrid, mapGI, TileType, makeIntGrid } from './grid'
+import { Grid, TileItem, makeGrid, mapGI, TileType, makeIntGrid, getGridItem } from './grid'
 
-enum RoomResult {
-  EnemiesGone = 0,
-  EveryoneGone = 1,
+export enum RoomResult {
+  EveryoneGone = 'EveryoneGone',
+  EnemiesGone = 'EnemiesGone',
+  PlayersGone = 'PlayersGone',
 }
 
 const isPosEq = (x1:number, y1:number, x2:number, y2:number) => x1 === x2 && y1 === y2
@@ -14,6 +15,8 @@ const isPosEq = (x1:number, y1:number, x2:number, y2:number) => x1 === x2 && y1 
 const genEnemies = ():Actor[] => {
   return [new Actor()]
 }
+
+const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
 
 export class Room {
   grid:Grid<TileItem>
@@ -32,13 +35,22 @@ export class Room {
         return TileType.Wall
       }
 
+      if (isPosEq(this.entrance.x, this.entrance.y, x, y)) {
+        return TileType.Entrance
+      }
+
+      if (isPosEq(this.exit.x, this.exit.y, x, y)) {
+        return TileType.Exit
+      }
+
       return null
     })
 
-    playerTeam.forEach(player => {
+    playerTeam.forEach((player, i) => {
+      const diff = entranceDiffs[i]
       player.battleData = {
-        x: this.entrance.x,
-        y: this.entrance.y,
+        x: this.entrance.x + diff.x,
+        y: this.entrance.y + diff.y,
         stateTime: 10,
         isPlayer: true
       }
@@ -61,14 +73,16 @@ export class Room {
       actor.bd.stateTime--
       if (actor.bd.stateTime > 0) return
 
-      const path = pathfind(makeIntGrid(11, 11), vec2(actor.bd.x, actor.bd.y), this.exit, Diagonal, true)
+      console.log(this.makeMap(actor))
+
+      const path = pathfind(this.makeMap(actor), vec2(actor.bd.x, actor.bd.y), this.exit, Diagonal, true)
       if (!path) throw 'Path not found'
 
       const items = recycle(path)
 
       actor.bd.x = items[0].x
       actor.bd.y = items[0].y
-      actor.bd.stateTime = Math.floor(Math.random() * 10)
+      actor.bd.stateTime = 10 + Math.floor(Math.random() * 10)
     })
 
     // remove actor at exit
@@ -77,6 +91,35 @@ export class Room {
       this.actors = this.actors.filter(actor => actor !== found)
     }
 
+    if (this.actors.length === 0) {
+      return RoomResult.EveryoneGone
+    }
+    if (this.getPlayers().length === 0) {
+      return RoomResult.PlayersGone
+    }
+    if (this.getEnemies().length === 0) {
+      return RoomResult.EnemiesGone
+    }
+
     return null
+  }
+
+  makeMap (actor:Actor) {
+    return mapGI(makeIntGrid(11, 11), (x, y, _) => {
+      const tile = getGridItem(this.grid, x, y)
+      return tile === null && (!this.actorAt(x, y) || this.actorAt(x, y) === actor) ? 1 : 0
+    })
+  }
+
+  getPlayers ():Actor[] {
+    return this.actors.filter(actor => actor.bd.isPlayer)
+  }
+
+  getEnemies ():Actor[] {
+    return this.actors.filter(actor => !actor.bd.isPlayer)
+  }
+
+  actorAt (x:number, y:number):Actor | undefined {
+    return this.actors.find(a => a.bd.x === x && a.bd.y === y)
   }
 }

@@ -2,7 +2,7 @@ import { names } from './data/names'
 import { addLog } from './ui/logs'
 import { Actor } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
-import { Room } from './world/room'
+import { Room, RoomResult } from './world/room'
 
 console.log('bro')
 // move to new file? or just new branch
@@ -47,10 +47,21 @@ ctx.fillText(`${names[Math.floor(Math.random() * names.length)]} BroOoOoOoOoOo`,
 
 let image:HTMLImageElement
 let room:Room
+let roomActive:boolean = true
+
+const handleRoomResult = (result:RoomResult) => {
+  console.log(result)
+  roomActive = false
+}
 
 const update = () => {
   // Room.update()
-  room.update()
+  if (roomActive) {
+    const result = room.update()
+    if (result) {
+      handleRoomResult(result)
+    }
+  }
 }
 
 // this assumes the same image for all
@@ -65,8 +76,12 @@ const draw = () => {
   ctx.fillStyle = bgColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   forEachGI(room.grid, (x, y, item) => {
-    if (item == TileType.Wall) {
+    if (item === TileType.Wall) {
       drawTile(4, x, y)
+    } else if (item === TileType.Entrance) {
+      drawTile(7, x, y)
+    } else if (item === TileType.Exit) {
+      drawTile(6, x, y)
     }
   })
 
