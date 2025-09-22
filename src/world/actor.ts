@@ -4,10 +4,10 @@ type BattleData = {
   stateTime:number
   x:number
   y:number
+  isPlayer:boolean
 }
 
 export class Actor {
-
   name:string
 
   health:number
