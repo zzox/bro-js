@@ -7,6 +7,8 @@
   --bg-color: #160712;
   --dark-bg-color: #52534c; /* used for disabled */
   --color: #cbd1be;
+  --green: #5d7643;
+  --blue: #3870be;
   /* --top: 999; */
 }
 
@@ -31,6 +33,10 @@ canvas {
   image-rendering: pixelated;
 }
 
+p {
+  margin: 2px;
+}
+
 /* nav {
   display: flex;
   justify-content: space-between;
@@ -39,15 +45,21 @@ canvas {
 
 #chars {
   flex-basis: 30%;
+  display: flex;
+  flex-direction: column;
 }
 
 #battle {
   flex-basis: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* height: 100%; */
 }
 
 #logs {
-  display: flex;
   flex-basis: 30%;
+  display: flex;
   flex-direction: column;
   justify-content: flex-end;
   overflow-y: scroll;
@@ -57,10 +69,50 @@ canvas {
   margin: 2px;
 }
 
+.char {
+  flex-basis: calc(25% - 3rem);
+  padding: 0.5rem;
+}
+
+.char-name {
+  font-size: 20px;
+}
+
 .box {
   margin: 1em;
   border: .25em solid var(--color);
 }
 
+progress {
+  border-radius: 0;
+  margin-bottom: 0.25rem;
+  inline-size: auto;
+  width: calc(100%);
+  background-color: var(--bg-color);
+}
+progress::-webkit-progress-bar {
+  background-color: var(--bg-color);
+}
+progress::-moz-progress-bar {
+  background-color: var(--bg-color);
+}
+.hp-bar {
+  border: 2px var(--green) solid;
+  color: var(--green);
+  height: 12px;
+}
+.mp-bar {
+  border: 2px var(--blue) solid;
+  color: var(--blue);
+  height: 8px;
+}
+.time-bar {
+  border: 2px var(--blue) solid;
+  color: var(--blue);
+  height: 2px;
+}
+
 .WHITE { color: var(--color); }
 .RED { color: #a93130; }
+.GREEN { color: var(--green); }
+.BLUE { color: var(--blue); }

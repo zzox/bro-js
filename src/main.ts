@@ -14,7 +14,8 @@ const resizeCanvas = () => {
   const h = canvas.height
   // overflow pixels
   const padding = 0
-  const availW = canvas.parentElement!.getBoundingClientRect().width
+  // smallest width on 40 percent
+  const availW = Math.min(canvas.parentElement!.getBoundingClientRect().width, document.body.getBoundingClientRect().width * .4)
   const availH = canvas.parentElement!.getBoundingClientRect().height
   const maxW = Math.floor(availW / (w - padding))
   const maxH = Math.floor(availH / (h - padding))
