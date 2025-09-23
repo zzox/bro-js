@@ -9,6 +9,7 @@
   --color: #cbd1be;
   --green: #5d7643;
   --blue: #3870be;
+  font-size: 16px;
   /* --top: 999; */
 }
 
@@ -17,7 +18,6 @@ body {
   background-color: var(--bg-color);
   color: var(--color);
   margin: 0;
-  font-size: 16px;
   font-weight: 700;
   /* overflow-y: hidden;
   overflow-x: hidden; */
@@ -34,7 +34,8 @@ canvas {
 }
 
 p {
-  margin: 2px;
+  margin: 0.2rem;
+  font-size: 1rem;
 }
 
 /* nav {
@@ -69,18 +70,26 @@ p {
   margin: 2px;
 }
 
+#chars {
+  padding: 1em;
+}
+
 .char {
   flex-basis: calc(25% - 3rem);
   padding: 0.5rem;
 }
 
 .char-name {
-  font-size: 20px;
+  font-size: 1.25rem;
 }
 
 .box {
   margin: 1em;
   border: .25em solid var(--color);
+}
+
+#chars > .box {
+  margin: 0 0 0.5em 0;
 }
 
 progress {

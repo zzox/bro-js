@@ -116,6 +116,8 @@ export class Room {
     // TEMP:
     actor.health -= 1
 
+    this.onEvent({ type: RoomEventType.Damage, amount: 1 })
+
     actor.bd.x = items[0].x
     actor.bd.y = items[0].y
     actor.bd.stateTime = 10 + Math.floor(Math.random() * 10)
