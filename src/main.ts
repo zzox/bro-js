@@ -124,7 +124,7 @@ const run = async () => {
   // await Promise.all(
   //   Array.from(document.images).map(
   //     (image) =>
-  //       new Promise((resolve) => image.addEventListener("load", resolve)),
+  //       new Promise((resolve) => image.addEventListener('load', resolve)),
   //   ),
   // );
 

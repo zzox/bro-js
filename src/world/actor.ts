@@ -1,14 +1,27 @@
 import { names } from '../data/names'
 
 type BattleData = {
+  state:ActorState
   stateTime:number
   x:number
   y:number
   isPlayer:boolean
 }
 
+export enum Behavior {
+  Aggro,
+  Evade
+}
+
+export enum ActorState {
+  Wait, // move
+  PreAttack,
+  Attack,
+}
+
 export class Actor {
   name:string
+  behavior:Behavior = Behavior.Aggro
 
   health:number
   maxHealth:number
@@ -24,7 +37,7 @@ export class Actor {
   }
 
   newBattle (x:number, y:number, isPlayer:boolean) {
-    this.battleData = { x, y, stateTime: 10, isPlayer }
+    this.battleData = { x, y, state: ActorState.Wait, stateTime: 10, isPlayer }
   }
 
   get bd () {

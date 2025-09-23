@@ -12,7 +12,7 @@ export const setActorCallback = (cb:(num:number, behavior:Behavior) => void) => 
 
 export const updatePlayerUi = (actors:Actor[]) => {
   actors.forEach((actor, i) => {
-    console.log(actorUis[i], i)
+    // console.log(actorUis[i], i)
     ;(actorUis[i].querySelector('.hp-bar') as HTMLProgressElement).value = actor.health
     ;(actorUis[i].querySelector('.hp-bar') as HTMLProgressElement).max = actor.maxHealth
   })

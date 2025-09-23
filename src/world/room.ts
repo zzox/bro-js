@@ -1,7 +1,7 @@
 import { vec2, Vec2 } from '../data/globals'
 import { Diagonal, pathfind } from '../util/pathfind'
-import { recycle } from '../util/utils'
-import { Actor } from './actor'
+import { distanceBetween, recycle } from '../util/utils'
+import { Actor, Behavior } from './actor'
 import { Grid, TileItem, makeGrid, mapGI, TileType, makeIntGrid, getGridItem } from './grid'
 
 export enum RoomResult {
@@ -10,10 +10,26 @@ export enum RoomResult {
   PlayersGone = 'PlayersGone',
 }
 
+// TODO: remove methods or move to utils?
 const isPosEq = (x1:number, y1:number, x2:number, y2:number) => x1 === x2 && y1 === y2
 
 const genEnemies = ():Actor[] => {
   return [new Actor()]
+}
+
+const findNearest = (x:number, y:number, actors:Array<Actor>):Actor | null => {
+  var nearest = null
+  // WARN:
+  var nearestDist = 1000.0
+  actors.forEach(a => {
+    const distance = distanceBetween(a.bd.x, a.bd.y, x, y)
+    if (distance < nearestDist) {
+      nearest = a
+      nearestDist = distance
+    }
+  })
+
+  return nearest
 }
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
@@ -73,6 +89,7 @@ export class Room {
   }
 
   update ():RoomResult | null {
+    // do each actors actions
     this.actors.forEach(this.step)
 
     // remove actor at exit
@@ -80,6 +97,8 @@ export class Room {
     if (found != null) {
       this.actors = this.actors.filter(actor => actor !== found)
     }
+
+    // check actors against elements
 
     if (this.actors.length === 0) {
       return RoomResult.EveryoneGone
@@ -98,15 +117,39 @@ export class Room {
     actor.bd.stateTime--
     if (actor.bd.stateTime > 0) return
 
-    const path = pathfind(this.makeMap(actor), vec2(actor.bd.x, actor.bd.y), this.exit, Diagonal, true)
+    if (actor.behavior === Behavior.Aggro) {
+      const nearest = findNearest(actor.bd.x, actor.bd.y, actor.bd.isPlayer ? this.getEnemies() : this.getPlayers())
+      if (!nearest) {
+        // leave if there's noone
+        this.tryMoveActor(actor, this.exit.x, this.exit.y)
+        return
+      }
+
+      const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.x)
+
+      // sqrt(2) is under 1.5
+      const spellDistance = 1.5
+      if (nearestDist <= spellDistance) {
+        this.attack(actor, nearest.bd.x, nearest.bd.y)
+      } else {
+        this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
+      }
+
+      // TEMP:
+      return
+      actor.health -= 1
+      this.onEvent({ type: RoomEventType.Damage, amount: 1 })
+    }
+  }
+
+  attack (actor:Actor, x:number, y:number) {
+
+  }
+
+  tryMoveActor (actor:Actor, targetX:number, targetY:number) {
+    const path = pathfind(this.makeMap(actor), vec2(actor.bd.x, actor.bd.y), vec2(targetX, targetY), Diagonal, true)
     if (!path) throw 'Path not found'
-
     const items = recycle(path)
-
-    // TEMP:
-    actor.health -= 1
-
-    this.onEvent({ type: RoomEventType.Damage, amount: 1 })
 
     actor.bd.x = items[0].x
     actor.bd.y = items[0].y
