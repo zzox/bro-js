@@ -60,21 +60,11 @@ export class Room {
 
     playerTeam.forEach((player, i) => {
       const diff = entranceDiffs[i]
-      player.battleData = {
-        x: this.entrance.x + diff.x,
-        y: this.entrance.y + diff.y,
-        stateTime: 10,
-        isPlayer: true
-      }
+      player.newBattle(this.entrance.x + diff.x, this.entrance.y + diff.y, true)
     })
 
     enemies.forEach(enemy => {
-      enemy.battleData = {
-        x: 1,
-        y: 1,
-        stateTime: 10,
-        isPlayer: false
-      }
+      enemy.newBattle(1, 1, false)
     })
 
     this.actors = this.actors.concat(playerTeam, enemies)
