@@ -86,20 +86,20 @@ const draw = () => {
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   forEachGI(room.grid, (x, y, item) => {
     if (item === TileType.Wall) {
-      drawTile(4, x, y)
+      drawTile(130, x, y)
     } else if (item === TileType.Entrance) {
-      drawTile(7, x, y)
+      drawTile(129, x, y)
     } else if (item === TileType.Exit) {
-      drawTile(6, x, y)
+      drawTile(128, x, y)
     }
   })
 
   room.actors.forEach(actor => {
-    drawTile(0, actor.bd.x, actor.bd.y)
+    drawTile(1, actor.bd.x, actor.bd.y)
   })
 
   room.elements.forEach(element => {
-    drawTile(32, element.x, element.y)
+    drawTile(256, element.x, element.y)
   })
 
   // room.particles.forEach(particle => {

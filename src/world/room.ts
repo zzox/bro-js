@@ -42,7 +42,8 @@ enum RoomEventType {
 
 export type RoomEvent = {
   type:RoomEventType
-  amount:number
+  amount?:number
+  who?:Actor
 }
 
 export type RElement = {
