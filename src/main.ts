@@ -92,9 +92,17 @@ const draw = () => {
     }
   })
 
-  room.actors.forEach((actor) => {
+  room.actors.forEach(actor => {
     drawTile(0, actor.bd.x, actor.bd.y)
   })
+
+  room.elements.forEach(element => {
+    drawTile(32, element.x, element.y)
+  })
+
+  // room.particles.forEach(particle => {
+  //   drawTile(32, particle.x, particle.y)
+  // })
 }
 
 const next = () => {
