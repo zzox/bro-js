@@ -1,11 +1,14 @@
 import { names } from './data/names'
 import { addLog } from './ui/logs'
 import { updatePlayerUi } from './ui/player-ui'
+import { logger, LogLevel, setLogLevel } from './util/logger'
 import { Actor } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
 import { Room, RoomEvent, RoomResult } from './world/room'
 
-console.log('bro')
+setLogLevel(LogLevel.Debug)
+logger.debug('bro')
+
 // move to new file? or just new branch
 const canvas = document.getElementById('main-canvas') as HTMLCanvasElement
 
@@ -32,7 +35,6 @@ resizeCanvas()
 const ctx = canvas!.getContext('2d') as CanvasRenderingContext2D
 
 const bgColor = window.getComputedStyle(document.body).getPropertyValue('--bg-color')
-console.log(bgColor)
 
 ctx.fillStyle = bgColor
 ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -52,12 +54,12 @@ let roomActive:boolean = true
 let actors:Actor[]
 
 const handleRoomResult = (result:RoomResult) => {
-  console.log(result)
+  logger.debug('room result', result)
   roomActive = false
 }
 
 const handleRoomEvent = (event:RoomEvent) => {
-  console.log(event)
+  logger.debug('room event', event)
   updatePlayerUi(actors)
 }
 
@@ -116,7 +118,6 @@ const ready = () => {
   actors = [new Actor(), new Actor(), new Actor(), new Actor()]
   updatePlayerUi(actors)
   room = new Room(actors, handleRoomEvent)
-  console.log(room)
 
   addLog('asdf')
   next()
@@ -125,7 +126,6 @@ const ready = () => {
 const run = async () => {
   image = new Image()
   image.src = './assets/tiles.png'
-  console.log(image)
 
   // const grid = makeGrid(11, 11)
 

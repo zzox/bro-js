@@ -3,6 +3,7 @@
 
 import { vec2, Vec2 } from '../data/globals'
 import { getGridItem, Grid } from '../world/grid'
+import { logger } from './logger'
 
 // from: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 type Heuristic = (p1:Vec2, p2:Vec2) => number
@@ -214,7 +215,8 @@ export function pathfind (
 
     // safeguarding against infinite loops. may be unnecessary.
     if (++iterations > 5000) {
-      console.log('too many iterations')
+      // WARN:
+      logger.error('too many iterations')
       break
     }
   }

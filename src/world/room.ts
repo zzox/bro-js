@@ -1,4 +1,5 @@
 import { vec2, Vec2 } from '../data/globals'
+import { logger } from '../util/logger'
 import { Diagonal, pathfind } from '../util/pathfind'
 import { distanceBetween, recycle } from '../util/utils'
 import { Actor, ActorState, Behavior } from './actor'
@@ -65,7 +66,6 @@ export class Room {
   onEvent:(e:RoomEvent) => void
 
   constructor (playerTeam:Actor[], onEvent:(e:RoomEvent) => void) {
-    console.log(playerTeam)
     const enemies = genEnemies()
 
     this.grid = mapGI(makeGrid(11, 11), (x, y, item) => {
@@ -214,8 +214,8 @@ export class Room {
   tryMoveActor (actor:Actor, targetX:number, targetY:number) {
     const path = pathfind(this.makeMap(actor), vec2(actor.bd.x, actor.bd.y), vec2(targetX, targetY), Diagonal, true)
     if (!path) {
+      logger.debug('path not found')
       // TODO: stateTime of 1
-      console.log('path not found')
       actor.bd.stateTime = 60
       return
     }
