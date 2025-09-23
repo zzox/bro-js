@@ -1,7 +1,7 @@
 import { vec2, Vec2 } from '../data/globals'
 import { Diagonal, pathfind } from '../util/pathfind'
 import { distanceBetween, recycle } from '../util/utils'
-import { Actor, Behavior } from './actor'
+import { Actor, ActorState, Behavior } from './actor'
 import { Grid, TileItem, makeGrid, mapGI, TileType, makeIntGrid, getGridItem } from './grid'
 
 export enum RoomResult {
@@ -44,10 +44,20 @@ export type RoomEvent = {
   amount:number
 }
 
+export type RElement = {
+  x:number
+  y:number
+  path:Vec2[]
+  time:number
+  from:Actor
+}
+
 export class Room {
   grid:Grid<TileItem>
 
   actors:Actor[] = []
+
+  elements:RElement[] = []
 
   exit:Vec2 = vec2(9, 1)
   entrance:Vec2 = vec2(2, 8)
@@ -90,7 +100,7 @@ export class Room {
 
   update ():RoomResult | null {
     // do each actors actions
-    this.actors.forEach(this.step)
+    this.actors.forEach(this.updateActor)
 
     // remove actor at exit
     const [found] = this.actors.filter(actor => isPosEq(actor.bd.x, actor.bd.y, this.exit.x, this.exit.y))
@@ -99,6 +109,11 @@ export class Room {
     }
 
     // check actors against elements
+    this.elements.forEach(this.updateEl)
+    this.elements = this.elements.filter(el => el.time > 0)
+
+    this.actors.forEach(a => !a.isAlive && this.onEvent({ type: RoomEventType.Death, who: a }))
+    this.actors = this.actors.filter(a => a.isAlive)
 
     if (this.actors.length === 0) {
       return RoomResult.EveryoneGone
@@ -113,9 +128,48 @@ export class Room {
     return null
   }
 
-  step = (actor:Actor) => {
+  damageActor = (actor:Actor, element:RElement) => {
+    // TODO: figure damage
+    const damage = Math.floor(Math.random() * 12)
+    actor.health -= damage
+    actor.bd.damagedBy.push(element)
+    this.onEvent({ type: RoomEventType.Damage, amount: damage })
+  }
+
+  updateEl = (element:RElement) => {
+    element.time--
+
+    this.actors.forEach(actor => {
+      if (isPosEq(actor.bd.x, actor.bd.y, element.x, element.y) && !actor.bd.damagedBy.includes(element)) {
+        this.damageActor(actor, element)
+      }
+    })
+
+    if (element.time === 0) {
+      this.clearDamagedBy(element)
+    }
+  }
+
+  clearDamagedBy = (element:RElement) => {
+    this.actors.forEach(actor => {
+      actor.bd.damagedBy = actor.bd.damagedBy.filter(el => el != element)
+    })
+  }
+
+  updateActor = (actor:Actor) => {
     actor.bd.stateTime--
     if (actor.bd.stateTime > 0) return
+
+    if (actor.bd.state == ActorState.Attack) {
+      actor.bd.state = ActorState.Wait
+    }
+
+    if (actor.bd.state === ActorState.PreAttack) {
+      this.doAttack(actor)
+    }
+
+    // if we arent waiting, we should return
+    if (actor.bd.state !== ActorState.Wait) return
 
     if (actor.behavior === Behavior.Aggro) {
       const nearest = findNearest(actor.bd.x, actor.bd.y, actor.bd.isPlayer ? this.getEnemies() : this.getPlayers())
@@ -130,25 +184,41 @@ export class Room {
       // sqrt(2) is under 1.5
       const spellDistance = 1.5
       if (nearestDist <= spellDistance) {
-        this.attack(actor, nearest.bd.x, nearest.bd.y)
+        this.tryAttack(actor, nearest.bd.x, nearest.bd.y)
       } else {
         this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
       }
-
-      // TEMP:
-      return
-      actor.health -= 1
-      this.onEvent({ type: RoomEventType.Damage, amount: 1 })
+    } else if (actor.behavior === Behavior.Evade) {
+      this.tryMoveActor(actor, this.exit.x, this.exit.y)
     }
   }
 
-  attack (actor:Actor, x:number, y:number) {
+  addElement(actor:Actor) {
+    this.elements.push({ x: actor.bd.attackPos!.x, y: actor.bd.attackPos!.y, path: [], time: 1, from: actor })
+  }
 
+  tryAttack (actor:Actor, x:number, y:number) {
+    actor.bd.attackPos = vec2(x, y)
+    actor.bd.state = ActorState.PreAttack
+    actor.bd.stateTime = 30 // lookup from spell
+  }
+
+  doAttack (actor:Actor) {
+    if (!actor.bd.attackPos) throw 'No Attack Pos!'
+    this.addElement(actor)
+    actor.bd.attackPos = undefined
+    actor.bd.state = ActorState.Attack
+    actor.bd.stateTime = 60 // lookup from spell, add dexterity
   }
 
   tryMoveActor (actor:Actor, targetX:number, targetY:number) {
     const path = pathfind(this.makeMap(actor), vec2(actor.bd.x, actor.bd.y), vec2(targetX, targetY), Diagonal, true)
-    if (!path) throw 'Path not found'
+    if (!path) {
+      // TODO: stateTime of 1
+      console.log('path not found')
+      actor.bd.stateTime = 60
+      return
+    }
     const items = recycle(path)
 
     actor.bd.x = items[0].x

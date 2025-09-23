@@ -1,4 +1,6 @@
+import { Vec2 } from '../data/globals'
 import { names } from '../data/names'
+import { RElement } from './room'
 
 type BattleData = {
   state:ActorState
@@ -6,6 +8,9 @@ type BattleData = {
   x:number
   y:number
   isPlayer:boolean
+  // spell:Spell
+  damagedBy:RElement[]
+  attackPos?:Vec2
 }
 
 export enum Behavior {
@@ -37,7 +42,7 @@ export class Actor {
   }
 
   newBattle (x:number, y:number, isPlayer:boolean) {
-    this.battleData = { x, y, state: ActorState.Wait, stateTime: 10, isPlayer }
+    this.battleData = { x, y, state: ActorState.Wait, stateTime: 10, isPlayer, damagedBy: [] }
   }
 
   get bd () {

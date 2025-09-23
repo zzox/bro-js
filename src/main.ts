@@ -57,6 +57,7 @@ const handleRoomResult = (result:RoomResult) => {
 }
 
 const handleRoomEvent = (event:RoomEvent) => {
+  console.log(event)
   updatePlayerUi(actors)
 }
 
