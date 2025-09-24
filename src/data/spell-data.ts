@@ -13,12 +13,13 @@ export enum SpellType {
 export type SpellData = {
   time:number
   range:number
+  tile:number
 }
 
 export const spellData:Map<SpellType, SpellData> = new Map();
 
-spellData.set(SpellType.Cut, { time: 1, range: SQRT2, })
-spellData.set(SpellType.Fire, { time: 10, range: MAXDIST })
+spellData.set(SpellType.Cut, { time: 1, range: SQRT2, tile: 256 })
+spellData.set(SpellType.Fire, { time: 10, range: MAXDIST, tile: 257 })
 
 export const getActorSpellData = (actor:Actor):SpellData => {
   return spellData.get(actorData.get(actor.type)!.offSpell)!

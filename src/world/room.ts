@@ -101,7 +101,7 @@ export class Room {
     }
 
     // check actors against elements
-    this.elements.forEach(this.updateEl)
+    this.elements.forEach(this.updateElement)
     this.elements = this.elements.filter(el => el.time > 0)
 
     this.actors.forEach(a => !a.isAlive && this.onEvent({ type: RoomEventType.Death, who: a }))
@@ -128,7 +128,7 @@ export class Room {
     this.onEvent({ type: RoomEventType.Damage, amount: damage })
   }
 
-  updateEl = (element:RElement) => {
+  updateElement = (element:RElement) => {
     element.time--
 
     if (element.time === 0 && element.path.length) {
@@ -136,11 +136,13 @@ export class Room {
       // if colliding with wall, set time to 0
       // for now, if we collide with an enemy, we keep going
       const next = element.path.shift()
-      if (next) {
+      if (next && this.checkCollisions(next.x, next.y)) {
         element.x = next.x
         element.y = next.y
+        element.time = spellData.get(element.type)!.time
+      } else {
+        element.time = 0
       }
-      element.time = spellData.get(element.type)!.time
     }
 
     this.actors.forEach(actor => {
@@ -149,9 +151,8 @@ export class Room {
       }
     })
 
-
     if (element.time === 0) {
-      this.onEvent({ type: RoomEventType.AttackEnd, x: element.x, y: element.y, })
+      this.onEvent({ type: RoomEventType.AttackEnd, x: element.x, y: element.y, who: element.from })
     }
   }
 
@@ -192,7 +193,7 @@ export class Room {
     }
   }
 
-  addElement(actor:Actor) {
+  addElement (actor:Actor) {
     const spell = getActorSpellData(actor)
 
     const ranged = spell.range > SQRT2
@@ -240,6 +241,10 @@ export class Room {
     actor.bd.x = items[0].x
     actor.bd.y = items[0].y
     actor.bd.stateTime = 10 + Math.floor(Math.random() * 10)
+  }
+
+  checkCollisions (x:number, y:number) {
+    return getGridItem(this.grid, x, y) !== TileType.Wall
   }
 
   makeMap (actor:Actor) {

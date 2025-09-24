@@ -1,5 +1,6 @@
 import { actorData, ActorType } from './data/actor-data'
 import { names } from './data/names'
+import { getActorSpellData, spellData } from './data/spell-data'
 import { addLog } from './ui/logs'
 import { updatePlayerUi } from './ui/player-ui'
 import { logger, LogLevel, setLogLevel } from './util/logger'
@@ -69,7 +70,7 @@ const handleRoomEvent = (event:RoomEvent) => {
   updatePlayerUi(actors)
   if (event.type === RoomEventType.AttackEnd) {
     // right now its a sword
-    particles.push({ tile: 256, collTime: 5, time: 30, x: event.x!, y: event.y! })
+    particles.push({ tile: getActorSpellData(event.who!).tile, collTime: 5, time: 30, x: event.x!, y: event.y! })
   }
 }
 
@@ -135,11 +136,11 @@ const draw = () => {
   })
 
   room.elements.forEach(element => {
-    drawTile(256, element.x, element.y)
+    drawTile(spellData.get(element.type)!.tile, element.x, element.y)
   })
 
   particles.forEach(particle => {
-    drawTile(256, particle.x, particle.y)
+    drawTile(particle.tile, particle.x, particle.y)
   })
 }
 
