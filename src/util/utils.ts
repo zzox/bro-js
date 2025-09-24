@@ -43,4 +43,3 @@ export const findNearest = (x:number, y:number, actors:Array<Actor>):Actor | nul
 
   return nearest
 }
-

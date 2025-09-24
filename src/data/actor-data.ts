@@ -7,7 +7,7 @@ export enum ActorType {
 
 type ActorData = {
   tile:number
-  offSpell?:SpellType
+  offSpell:SpellType
   defSpell?:SpellType
 }
 

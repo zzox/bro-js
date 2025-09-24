@@ -1,8 +1,9 @@
 import { actorData, ActorType } from '../data/actor-data'
 import { vec2, Vec2 } from '../data/globals'
-import { SpellType } from '../data/spell-data'
+import { getActorSpellData, spellData, SpellType, SQRT2 } from '../data/spell-data'
 import { logger } from '../util/logger'
 import { Diagonal, pathfind } from '../util/pathfind'
+import { makeLine } from '../util/raytrace'
 import { distanceBetween, findNearest, isPosEq, recycle } from '../util/utils'
 import { Actor, ActorState, Behavior } from './actor'
 import { Grid, TileItem, makeGrid, mapGI, TileType, makeIntGrid, getGridItem } from './grid'
@@ -16,7 +17,6 @@ export enum RoomResult {
 const genEnemies = ():Actor[] => {
   return [new Actor(ActorType.Goblin)]
 }
-
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
 
@@ -41,7 +41,7 @@ export type RElement = {
   y:number
   time:number
   from:Actor
-  path?:Vec2[]
+  path:Vec2[]
   damaged:Actor[]
 }
 
@@ -131,16 +131,27 @@ export class Room {
   updateEl = (element:RElement) => {
     element.time--
 
+    if (element.time === 0 && element.path.length) {
+      // try to move, check collisions
+      // if colliding with wall, set time to 0
+      // for now, if we collide with an enemy, we keep going
+      const next = element.path.shift()
+      if (next) {
+        element.x = next.x
+        element.y = next.y
+      }
+      element.time = spellData.get(element.type)!.time
+    }
+
     this.actors.forEach(actor => {
       if (isPosEq(actor.bd.x, actor.bd.y, element.x, element.y) && !element.damaged.includes(actor)) {
         this.damageActor(actor, element)
       }
     })
 
+
     if (element.time === 0) {
-      // TODO: event element ended
       this.onEvent({ type: RoomEventType.AttackEnd, x: element.x, y: element.y, })
-      // this.clearDamagedBy(element)
     }
   }
 
@@ -170,8 +181,8 @@ export class Room {
       const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
 
       // sqrt(2) is under 1.5
-      const spellDistance = 1.5
-      if (nearestDist <= spellDistance) {
+
+      if (nearestDist <= getActorSpellData(actor).range) {
         this.tryAttack(actor, nearest.bd.x, nearest.bd.y)
       } else {
         this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
@@ -182,13 +193,21 @@ export class Room {
   }
 
   addElement(actor:Actor) {
+    const spell = getActorSpellData(actor)
+
+    const ranged = spell.range > SQRT2
+    const path = ranged ? makeLine(actor.bd.x, actor.bd.y, actor.bd.attackPos!.x, actor.bd.attackPos!.y) : []
+    const first = path.shift()
+    const startX = ranged ? first!.x : actor.bd.attackPos!.x
+    const startY = ranged ? first!.y : actor.bd.attackPos!.y
+
     this.elements.push({
       type: actorData.get(actor.type)!.offSpell!,
-      x: actor.bd.attackPos!.x,
-      y: actor.bd.attackPos!.y,
-      path: [],
+      x: startX,
+      y: startY,
+      path,
       damaged: [],
-      time: 1,
+      time: spell.time,
       from: actor
     })
   }
