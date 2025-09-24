@@ -67,7 +67,8 @@ const handleRoomResult = (result:RoomResult) => {
 const handleRoomEvent = (event:RoomEvent) => {
   logger.debug('room event', event)
   updatePlayerUi(actors)
-  if (event.type === RoomEventType.Attack) {
+  if (event.type === RoomEventType.AttackEnd) {
+    // right now its a sword
     particles.push({ tile: 256, collTime: 5, time: 30, x: event.x!, y: event.y! })
   }
 }

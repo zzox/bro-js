@@ -1,8 +1,9 @@
-import { ActorType } from '../data/actor-data'
+import { actorData, ActorType } from '../data/actor-data'
 import { vec2, Vec2 } from '../data/globals'
+import { SpellType } from '../data/spell-data'
 import { logger } from '../util/logger'
 import { Diagonal, pathfind } from '../util/pathfind'
-import { distanceBetween, recycle } from '../util/utils'
+import { distanceBetween, findNearest, isPosEq, recycle } from '../util/utils'
 import { Actor, ActorState, Behavior } from './actor'
 import { Grid, TileItem, makeGrid, mapGI, TileType, makeIntGrid, getGridItem } from './grid'
 
@@ -12,34 +13,18 @@ export enum RoomResult {
   PlayersGone = 'PlayersGone',
 }
 
-// TODO: remove methods or move to utils?
-const isPosEq = (x1:number, y1:number, x2:number, y2:number) => x1 === x2 && y1 === y2
-
 const genEnemies = ():Actor[] => {
   return [new Actor(ActorType.Goblin)]
 }
 
-const findNearest = (x:number, y:number, actors:Array<Actor>):Actor | null => {
-  var nearest = null
-  // WARN:
-  var nearestDist = 1000.0
-  actors.forEach(a => {
-    const distance = distanceBetween(a.bd.x, a.bd.y, x, y)
-    if (distance < nearestDist) {
-      nearest = a
-      nearestDist = distance
-    }
-  })
-
-  return nearest
-}
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
 
 export enum RoomEventType {
   Death,
   Damage,
-  Attack
+  Attack,
+  AttackEnd,
 }
 
 export type RoomEvent = {
@@ -51,12 +36,13 @@ export type RoomEvent = {
 }
 
 export type RElement = {
-  // type:ElementType
+  type:SpellType
   x:number
   y:number
   time:number
   from:Actor
   path?:Vec2[]
+  damaged:Actor[]
 }
 
 export class Room {
@@ -138,7 +124,7 @@ export class Room {
     // TODO: figure damage
     const damage = Math.floor(Math.random() * 12)
     actor.health -= damage
-    actor.bd.damagedBy.push(element)
+    element.damaged.push(actor)
     this.onEvent({ type: RoomEventType.Damage, amount: damage })
   }
 
@@ -146,20 +132,16 @@ export class Room {
     element.time--
 
     this.actors.forEach(actor => {
-      if (isPosEq(actor.bd.x, actor.bd.y, element.x, element.y) && !actor.bd.damagedBy.includes(element)) {
+      if (isPosEq(actor.bd.x, actor.bd.y, element.x, element.y) && !element.damaged.includes(actor)) {
         this.damageActor(actor, element)
       }
     })
 
     if (element.time === 0) {
-      this.clearDamagedBy(element)
+      // TODO: event element ended
+      this.onEvent({ type: RoomEventType.AttackEnd, x: element.x, y: element.y, })
+      // this.clearDamagedBy(element)
     }
-  }
-
-  clearDamagedBy = (element:RElement) => {
-    this.actors.forEach(actor => {
-      actor.bd.damagedBy = actor.bd.damagedBy.filter(el => el != element)
-    })
   }
 
   updateActor = (actor:Actor) => {
@@ -200,7 +182,15 @@ export class Room {
   }
 
   addElement(actor:Actor) {
-    this.elements.push({ x: actor.bd.attackPos!.x, y: actor.bd.attackPos!.y, path: [], time: 1, from: actor })
+    this.elements.push({
+      type: actorData.get(actor.type)!.offSpell!,
+      x: actor.bd.attackPos!.x,
+      y: actor.bd.attackPos!.y,
+      path: [],
+      damaged: [],
+      time: 1,
+      from: actor
+    })
   }
 
   tryAttack (actor:Actor, x:number, y:number) {

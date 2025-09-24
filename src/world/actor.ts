@@ -10,7 +10,6 @@ type BattleData = {
   y:number
   isPlayer:boolean
   // spell:Spell
-  damagedBy:RElement[]
   attackPos?:Vec2
 }
 
@@ -45,7 +44,7 @@ export class Actor {
   }
 
   newBattle (x:number, y:number, isPlayer:boolean) {
-    this.battleData = { x, y, state: ActorState.Wait, stateTime: 10, isPlayer, damagedBy: [] }
+    this.battleData = { x, y, state: ActorState.Wait, stateTime: 10, isPlayer }
   }
 
   get bd () {

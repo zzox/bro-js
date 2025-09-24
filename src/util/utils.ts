@@ -1,4 +1,5 @@
 import { vec2, Vec2 } from '../data/globals'
+import { Actor } from '../world/actor'
 
 // create new vec2s for ones that will be reused
 export const recycle = (vecs:Vec2[]):Vec2[] => vecs.map(v => vec2(v.x, v.y))
@@ -24,3 +25,22 @@ export const velocityFromAngle = (angle:number, velocity:number):Vec2 => {
 export const angleFromPoints = (p1x:number, p1y:number, p2x:number, p2y:number):number => {
   return toDegrees(Math.atan2(p1y - p2y, p1x - p2x))
 }
+
+export const isPosEq = (x1:number, y1:number, x2:number, y2:number) => x1 === x2 && y1 === y2
+
+// ATTN: should this be here?
+export const findNearest = (x:number, y:number, actors:Array<Actor>):Actor | null => {
+  var nearest = null
+  // WARN:
+  var nearestDist = 1000.0
+  actors.forEach(a => {
+    const distance = distanceBetween(a.bd.x, a.bd.y, x, y)
+    if (distance < nearestDist) {
+      nearest = a
+      nearestDist = distance
+    }
+  })
+
+  return nearest
+}
+
