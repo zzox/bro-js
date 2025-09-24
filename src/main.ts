@@ -37,9 +37,6 @@ const ctx = canvas!.getContext('2d') as CanvasRenderingContext2D
 
 const bgColor = window.getComputedStyle(document.body).getPropertyValue('--bg-color')
 
-ctx.fillStyle = bgColor
-ctx.fillRect(0, 0, canvas.width, canvas.height)
-
 ctx.font = '16px serif'
 ctx.fillStyle = 'white'
 ctx.fillText(`${names[Math.floor(Math.random() * names.length)]} BroOoOoOoOoOo`, 24, 24)
@@ -101,17 +98,27 @@ const update = () => {
   }
 }
 
+const clear = () => {
+  ctx.fillStyle = bgColor
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+}
+
+const clearTile = (x:number, y:number) => {
+  ctx.fillStyle = bgColor
+  ctx.fillRect(x * 14 + 1, y * 14 + 1, 12, 12)
+}
+
 // this assumes the same image for all
 // we draw a 12x12 image on a grid of 14
 const drawTile = (/*image:HTMLImageElement*/ index:number, x:number, y:number) => {
   const sx = index * 12 % image.width
   const sy = Math.floor(index * 12 / image.width) * 12
+  clearTile(x, y)
   ctx.drawImage(image, sx, sy, 12, 12, x * 14 + 1, y * 14 + 1, 12, 12)
 }
 
 const draw = () => {
-  ctx.fillStyle = bgColor
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  clear()
   forEachGI(room.grid, (x, y, item) => {
     if (item === TileType.Wall) {
       drawTile(130, x, y)
