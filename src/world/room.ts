@@ -1,3 +1,4 @@
+import { ActorType } from '../data/actor-data'
 import { vec2, Vec2 } from '../data/globals'
 import { logger } from '../util/logger'
 import { Diagonal, pathfind } from '../util/pathfind'
@@ -15,7 +16,7 @@ export enum RoomResult {
 const isPosEq = (x1:number, y1:number, x2:number, y2:number) => x1 === x2 && y1 === y2
 
 const genEnemies = ():Actor[] => {
-  return [new Actor()]
+  return [new Actor(ActorType.Goblin)]
 }
 
 const findNearest = (x:number, y:number, actors:Array<Actor>):Actor | null => {

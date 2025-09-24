@@ -1,3 +1,4 @@
+import { ActorType } from '../data/actor-data'
 import { Vec2 } from '../data/globals'
 import { names } from '../data/names'
 import { RElement } from './room'
@@ -26,6 +27,7 @@ export enum ActorState {
 
 export class Actor {
   name:string
+  type:ActorType
   behavior:Behavior = Behavior.Aggro
 
   health:number
@@ -33,12 +35,13 @@ export class Actor {
 
   battleData!:BattleData
 
-  constructor () {
+  constructor (type:ActorType) {
     this.health = 75
     this.maxHealth = 100
 
     // this.battleData = {}
     this.name = names[Math.floor(Math.random() * names.length)]
+    this.type = type
   }
 
   newBattle (x:number, y:number, isPlayer:boolean) {

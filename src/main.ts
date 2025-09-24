@@ -1,3 +1,4 @@
+import { actorData, ActorType } from './data/actor-data'
 import { names } from './data/names'
 import { addLog } from './ui/logs'
 import { updatePlayerUi } from './ui/player-ui'
@@ -95,7 +96,7 @@ const draw = () => {
   })
 
   room.actors.forEach(actor => {
-    drawTile(1, actor.bd.x, actor.bd.y)
+    drawTile(actorData.get(actor.type)!.tile, actor.bd.x, actor.bd.y)
   })
 
   room.elements.forEach(element => {
@@ -115,7 +116,7 @@ const next = () => {
 }
 
 const ready = () => {
-  actors = [new Actor(), new Actor(), new Actor(), new Actor()]
+  actors = [new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight)]
   updatePlayerUi(actors)
   room = new Room(actors, handleRoomEvent)
 
