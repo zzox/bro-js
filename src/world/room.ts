@@ -31,6 +31,7 @@ export type RoomEvent = {
   type:RoomEventType
   amount?:number
   who?:Actor
+  spell?:SpellType
   x?:number
   y?:number
 }
@@ -152,7 +153,7 @@ export class Room {
     })
 
     if (element.time === 0) {
-      this.onEvent({ type: RoomEventType.AttackEnd, x: element.x, y: element.y, who: element.from })
+      this.onEvent({ type: RoomEventType.AttackEnd, x: element.x, y: element.y, spell: element.type })
     }
   }
 

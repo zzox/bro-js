@@ -70,7 +70,7 @@ const handleRoomEvent = (event:RoomEvent) => {
   updatePlayerUi(actors)
   if (event.type === RoomEventType.AttackEnd) {
     // right now its a sword
-    particles.push({ tile: getActorSpellData(event.who!).tile, collTime: 5, time: 30, x: event.x!, y: event.y! })
+    particles.push({ tile: spellData.get(event.spell!)!.tile, collTime: 5, time: 30, x: event.x!, y: event.y! })
   }
 }
 
