@@ -36,23 +36,27 @@ const findNearest = (x:number, y:number, actors:Array<Actor>):Actor | null => {
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
 
-enum RoomEventType {
+export enum RoomEventType {
   Death,
   Damage,
+  Attack
 }
 
 export type RoomEvent = {
   type:RoomEventType
   amount?:number
   who?:Actor
+  x?:number
+  y?:number
 }
 
 export type RElement = {
+  // type:ElementType
   x:number
   y:number
-  path:Vec2[]
   time:number
   from:Actor
+  path?:Vec2[]
 }
 
 export class Room {
@@ -208,6 +212,7 @@ export class Room {
   doAttack (actor:Actor) {
     if (!actor.bd.attackPos) throw 'No Attack Pos!'
     this.addElement(actor)
+    this.onEvent({ type: RoomEventType.Attack, who: actor, x: actor.bd.attackPos.x, y: actor.bd.attackPos.y })
     actor.bd.attackPos = undefined
     actor.bd.state = ActorState.Attack
     actor.bd.stateTime = 60 // lookup from spell, add dexterity

@@ -5,7 +5,7 @@ import { updatePlayerUi } from './ui/player-ui'
 import { logger, LogLevel, setLogLevel } from './util/logger'
 import { Actor } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
-import { Room, RoomEvent, RoomResult } from './world/room'
+import { Room, RoomEvent, RoomEventType, RoomResult } from './world/room'
 
 setLogLevel(LogLevel.Debug)
 logger.debug('bro')
@@ -48,11 +48,19 @@ ctx.fillText(`${names[Math.floor(Math.random() * names.length)]} BroOoOoOoOoOo`,
 // border type and color for pre-plays
   // needs to be turned on in menu
 
+type Particle = {
+  tile:number
+  time:number
+  x:number
+  y:number
+  collTime:number
+}
 
 let image:HTMLImageElement
 let room:Room
 let roomActive:boolean = true
-let actors:Actor[]
+let actors:Actor[] = []
+let particles:Particle[] = []
 
 const handleRoomResult = (result:RoomResult) => {
   logger.debug('room result', result)
@@ -62,6 +70,9 @@ const handleRoomResult = (result:RoomResult) => {
 const handleRoomEvent = (event:RoomEvent) => {
   logger.debug('room event', event)
   updatePlayerUi(actors)
+  if (event.type === RoomEventType.Attack) {
+    particles.push({ tile: 256, collTime: 5, time: 30, x: event.x!, y: event.y! })
+  }
 }
 
 const update = () => {
@@ -71,6 +82,22 @@ const update = () => {
     if (result) {
       handleRoomResult(result)
     }
+
+    particles.forEach(particle => {
+      particle.time--
+      particle.collTime--
+
+      if (particle.collTime <= 0) {
+        room.actors.forEach(actor => {
+          // TODO: get isPosEq
+          if (actor.bd.x === particle.x && actor.bd.x === particle.x) {
+            particle.time = 0
+          }
+        })
+      }
+    })
+
+    particles = particles.filter(p => p.time > 0)
   }
 }
 
@@ -103,9 +130,9 @@ const draw = () => {
     drawTile(256, element.x, element.y)
   })
 
-  // room.particles.forEach(particle => {
-  //   drawTile(32, particle.x, particle.y)
-  // })
+  particles.forEach(particle => {
+    drawTile(256, particle.x, particle.y)
+  })
 }
 
 const next = () => {
