@@ -167,7 +167,7 @@ export class Room {
         return
       }
 
-      const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.x)
+      const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
 
       // sqrt(2) is under 1.5
       const spellDistance = 1.5
