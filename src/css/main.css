@@ -9,7 +9,7 @@
   --color: #cbd1be;
   --green: #5d7643;
   --blue: #3870be;
-  font-size: 16px;
+  font-size: max(1vh, 16px);
   /* --top: 999; */
 }
 
@@ -69,6 +69,21 @@ p {
 
 #logs > p {
   margin: 2px;
+}
+
+.ssimg {
+  background-image: url('/assets/tiles.png');
+  /* zoomed in 32x (sheet is 32 tiles wide and tall) */
+  background-size: 3200% 3200%;
+  width: 24px; height: 24px;
+  image-rendering: pixelated;
+  /* blank tile for now */
+  background-position: 24px 0px;
+}
+
+.char-title {
+  display: flex;
+  flex-direction: row;
 }
 
 .char {

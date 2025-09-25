@@ -1,5 +1,6 @@
+import { actorData } from '../data/actor-data'
 import { Actor } from '../world/actor'
-import { $q } from './ui'
+import { $q, setImage } from './ui'
 
 const MAX_ACTORS = 6
 const actorUis = Array.from(document.querySelectorAll('.char'))
@@ -15,5 +16,6 @@ export const updatePlayerUi = (actors:Actor[]) => {
     // console.log(actorUis[i], i)
     ;(actorUis[i].querySelector('.hp-bar') as HTMLProgressElement).value = actor.health
     ;(actorUis[i].querySelector('.hp-bar') as HTMLProgressElement).max = actor.maxHealth
+    setImage(actorData.get(actor.type)!.tile)
   })
 }
