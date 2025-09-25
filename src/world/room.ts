@@ -21,16 +21,18 @@ const genEnemies = ():Actor[] => {
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
 
 export enum RoomEventType {
-  Death,
-  Damage,
-  Attack,
-  AttackEnd,
+  Death = 'Death',
+  Damage = 'Damage',
+  Attack = 'Attack',
+  AttackEnd = 'AttackEnd',
+  Leave = 'Leave',
 }
 
 export type RoomEvent = {
   type:RoomEventType
   amount?:number
-  who?:Actor
+  from?:Actor
+  to?:Actor
   spell?:SpellType
   x?:number
   y?:number
@@ -98,6 +100,7 @@ export class Room {
     // remove actor at exit
     const [found] = this.actors.filter(actor => isPosEq(actor.bd.x, actor.bd.y, this.exit.x, this.exit.y))
     if (found != null) {
+      this.onEvent({ type: RoomEventType.Leave, from: found })
       this.actors = this.actors.filter(actor => actor !== found)
     }
 
@@ -105,7 +108,7 @@ export class Room {
     this.elements.forEach(this.updateElement)
     this.elements = this.elements.filter(el => el.time > 0)
 
-    this.actors.forEach(a => !a.isAlive && this.onEvent({ type: RoomEventType.Death, who: a }))
+    this.actors.forEach(a => !a.isAlive && this.onEvent({ type: RoomEventType.Death, to: a }))
     this.actors = this.actors.filter(a => a.isAlive)
 
     if (this.actors.length === 0) {
@@ -126,7 +129,7 @@ export class Room {
     const damage = Math.floor(Math.random() * 12)
     actor.health -= damage
     element.damaged.push(actor)
-    this.onEvent({ type: RoomEventType.Damage, amount: damage })
+    this.onEvent({ type: RoomEventType.Damage, amount: damage, to: actor, from: element.from })
   }
 
   updateElement = (element:RElement) => {
@@ -153,7 +156,7 @@ export class Room {
     })
 
     if (element.time === 0) {
-      this.onEvent({ type: RoomEventType.AttackEnd, x: element.x, y: element.y, spell: element.type })
+      this.onEvent({ type: RoomEventType.AttackEnd, x: element.x, y: element.y, spell: element.type, from: element.from, amount: element.damaged.length })
     }
   }
 
@@ -199,7 +202,14 @@ export class Room {
 
     const ranged = spell.range > SQRT2
     const path = ranged ? makeLine(actor.bd.x, actor.bd.y, actor.bd.attackPos!.x, actor.bd.attackPos!.y) : []
+
+    // first is actually second, because we get rid of the first
+    if (ranged) {
+      const zeroth = path.shift()
+      console.log(zeroth!.x === actor.bd.x && zeroth!.y === actor.bd.y)
+    }
     const first = path.shift()
+
     const startX = ranged ? first!.x : actor.bd.attackPos!.x
     const startY = ranged ? first!.y : actor.bd.attackPos!.y
 
@@ -223,7 +233,7 @@ export class Room {
   doAttack (actor:Actor) {
     if (!actor.bd.attackPos) throw 'No Attack Pos!'
     this.addElement(actor)
-    this.onEvent({ type: RoomEventType.Attack, who: actor, x: actor.bd.attackPos.x, y: actor.bd.attackPos.y })
+    this.onEvent({ type: RoomEventType.Attack, from: actor, x: actor.bd.attackPos.x, y: actor.bd.attackPos.y })
     actor.bd.attackPos = undefined
     actor.bd.state = ActorState.Attack
     actor.bd.stateTime = 60 // lookup from spell, add dexterity

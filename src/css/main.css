@@ -119,6 +119,7 @@ progress::-moz-progress-bar {
 }
 
 .WHITE { color: var(--color); }
+.WHITESMOKE { color: whitesmoke }
 .RED { color: #a93130; }
 .GREEN { color: var(--green); }
 .BLUE { color: var(--blue); }

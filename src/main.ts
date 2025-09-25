@@ -1,7 +1,7 @@
 import { actorData, ActorType } from './data/actor-data'
 import { names } from './data/names'
-import { getActorSpellData, spellData } from './data/spell-data'
-import { addLog } from './ui/logs'
+import { spellData } from './data/spell-data'
+import { createLogFromEvent } from './ui/logs'
 import { updatePlayerUi } from './ui/player-ui'
 import { logger, LogLevel, setLogLevel } from './util/logger'
 import { Actor } from './world/actor'
@@ -9,7 +9,7 @@ import { forEachGI, makeGrid, TileType } from './world/grid'
 import { Room, RoomEvent, RoomEventType, RoomResult } from './world/room'
 
 setLogLevel(LogLevel.Debug)
-logger.debug('bro')
+logger.debug('bro :)')
 
 // move to new file? or just new branch
 const canvas = document.getElementById('main-canvas') as HTMLCanvasElement
@@ -72,6 +72,7 @@ const handleRoomEvent = (event:RoomEvent) => {
     // right now its a sword
     particles.push({ tile: spellData.get(event.spell!)!.tile, collTime: 5, time: 30, x: event.x!, y: event.y! })
   }
+  createLogFromEvent(event)
 }
 
 const update = () => {
@@ -155,8 +156,6 @@ const ready = () => {
   actors = [new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight)]
   updatePlayerUi(actors)
   room = new Room(actors, handleRoomEvent)
-
-  addLog('asdf')
   next()
 }
 
