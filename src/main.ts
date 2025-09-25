@@ -113,11 +113,17 @@ const clearTile = (x:number, y:number) => {
 
 // this assumes the same image for all
 // we draw a 12x12 image on a grid of 14
-const drawTile = (/*image:HTMLImageElement*/ index:number, x:number, y:number) => {
+// one of the right ways to flipX: https://stackoverflow.com/questions/35973441/how-to-horizontally-flip-an-image
+const drawTile = (/*image:HTMLImageElement, */ index:number, x:number, y:number, flipX = false) => {
   const sx = index * 12 % image.width
   const sy = Math.floor(index * 12 / image.width) * 12
   clearTile(x, y)
-  ctx.drawImage(image, sx, sy, 12, 12, x * 14 + 1, y * 14 + 1, 12, 12)
+  // dest x and dest y
+  ctx.translate(x * 14 + 1 + (flipX ? 12 : 0), y * 14 + 1)
+  ctx.scale(flipX ? -1 : 1, 1)
+  ctx.drawImage(image, sx, sy, 12, 12, 0, 0, 12, 12)
+  // reset transformations
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
 }
 
 const draw = () => {
@@ -133,7 +139,11 @@ const draw = () => {
   })
 
   room.actors.forEach(actor => {
-    drawTile(actorData.get(actor.type)!.tile, actor.bd.x, actor.bd.y)
+    if (actor.type === ActorType.Goblin) {
+      drawTile(actorData.get(actor.type)!.tile, actor.bd.x, actor.bd.y)
+    } else {
+      drawTile(actorData.get(actor.type)!.tile, actor.bd.x, actor.bd.y)
+    }
   })
 
   room.elements.forEach(element => {
