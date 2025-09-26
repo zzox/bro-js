@@ -13,7 +13,7 @@ type ActorData = {
 
 export const actorData:Map<ActorType, ActorData> = new Map()
 
-actorData.set(ActorType.Knight, { tile: 1, offSpell: SpellType.Cut })
+actorData.set(ActorType.Knight, { tile: 0, offSpell: SpellType.Cut })
 actorData.set(ActorType.Goblin, { tile: 32, offSpell: SpellType.Fire })
 
 const playerActors = [ActorType.Knight]
