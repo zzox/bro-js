@@ -86,6 +86,10 @@ button:hover {
   margin: 2px;
 }
 
+/* .display-none {
+  display: none;
+} */
+
 .ssimg {
   background-image: url('/assets/tiles.png');
   /* zoomed in 32x (sheet is 32 tiles wide and tall) */

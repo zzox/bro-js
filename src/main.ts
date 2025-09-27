@@ -7,34 +7,10 @@ import { logger, LogLevel, setLogLevel } from './util/logger'
 import { Actor, Behavior } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
 import { Room, RoomEvent, RoomEventType, RoomResult } from './world/room'
+import { ctx } from './ui/canvas'
 
 setLogLevel(LogLevel.Info)
 logger.debug('bro :)')
-
-// move to new file? or just new branch
-const canvas = document.getElementById('main-canvas') as HTMLCanvasElement
-
-const resizeCanvas = () => {
-  const maxMulti = 20
-  const w = canvas.width
-  const h = canvas.height
-  // overflow pixels
-  const padding = 0
-  // smallest width on 40 percent
-  const availW = Math.min(canvas.parentElement!.getBoundingClientRect().width, document.body.getBoundingClientRect().width * .4)
-  const availH = canvas.parentElement!.getBoundingClientRect().height
-  const maxW = Math.floor(availW / (w - padding))
-  const maxH = Math.floor(availH / (h - padding))
-  const multi = Math.min(Math.min(maxW, maxH), maxMulti)
-
-  canvas.style.width = `${multi * w}px`
-  canvas.style.height = `${multi * h}px`
-}
-
-window.onresize = resizeCanvas
-resizeCanvas()
-
-const ctx = canvas!.getContext('2d') as CanvasRenderingContext2D
 
 const bgColor = window.getComputedStyle(document.body).getPropertyValue('--bg-color')
 
@@ -108,7 +84,8 @@ const update = () => {
 
 const clear = () => {
   ctx.fillStyle = bgColor
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillRect(0, 0, 14 * 11, 14 * 11)
+  // ctx.fillRect(0, 0, canvas.width, canvas.height)
 }
 
 const clearTile = (x:number, y:number) => {
