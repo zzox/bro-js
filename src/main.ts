@@ -2,13 +2,13 @@ import { actorData, ActorType } from './data/actor-data'
 import { names } from './data/names'
 import { spellData } from './data/spell-data'
 import { createLogFromEvent } from './ui/logs'
-import { updatePlayerUi } from './ui/player-ui'
+import { setupPlayerUi, updatePlayerUi } from './ui/player-ui'
 import { logger, LogLevel, setLogLevel } from './util/logger'
-import { Actor } from './world/actor'
+import { Actor, Behavior } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
 import { Room, RoomEvent, RoomEventType, RoomResult } from './world/room'
 
-setLogLevel(LogLevel.Debug)
+setLogLevel(LogLevel.Info)
 logger.debug('bro :)')
 
 // move to new file? or just new branch
@@ -73,6 +73,11 @@ const handleRoomEvent = (event:RoomEvent) => {
     particles.push({ tile: spellData.get(event.spell!)!.tile, collTime: 5, time: 30, x: event.x!, y: event.y! })
   }
   createLogFromEvent(event)
+}
+
+const handleButtonPress = (actorNum:number, behaviorNum:number) => {
+  console.log(actorNum, behaviorNum)
+  // lookup behaviors on actorData
 }
 
 const update = () => {
@@ -167,6 +172,7 @@ const ready = () => {
   updatePlayerUi(actors)
   room = new Room(actors, handleRoomEvent)
   next()
+  setupPlayerUi(handleButtonPress)
 }
 
 const run = async () => {
