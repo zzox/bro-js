@@ -57,5 +57,9 @@ export const updatePlayerUi = (actors:Actor[]) => {
     // move out to method when the elements are removed
     actor.name.textContent = actors[i].name
     // setImage(actorData.get(actor.type)!.tile)
+
+    // TEST: clear and then sometimes add, probably will be the model going forwards
+    // actor.buttons.forEach(btn => btn.classList.remove('display-none'))
+    // actor.buttons.forEach(btn => Math.random() < 0.5 ? btn.classList.add('display-none') : null)
   })
 }

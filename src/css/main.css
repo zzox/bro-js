@@ -93,9 +93,9 @@ button:disabled {
   margin: 2px;
 }
 
-/* .display-none {
+.display-none {
   display: none;
-} */
+}
 
 .ssimg {
   background-image: url('/assets/tiles.png');
