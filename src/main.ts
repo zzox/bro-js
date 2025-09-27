@@ -12,15 +12,14 @@ import { ctx } from './ui/canvas'
 setLogLevel(LogLevel.Info)
 logger.debug('bro :)')
 
+// move to colors.ts file
 const bgColor = window.getComputedStyle(document.body).getPropertyValue('--bg-color')
 
-ctx.font = '16px serif'
-ctx.fillStyle = 'white'
-ctx.fillText(`${names[Math.floor(Math.random() * names.length)]} BroOoOoOoOoOo`, 24, 24)
-
-// notes
-// border type and color for pre-plays
-  // needs to be turned on in menu
+enum GameState {
+  InRoom,
+  InRoomAfter,
+  PostRoom
+}
 
 type Particle = {
   tile:number
@@ -32,13 +31,13 @@ type Particle = {
 
 let image:HTMLImageElement
 let room:Room
-let roomActive:boolean = true
+let gameState:GameState = GameState.InRoom
 let actors:Actor[] = []
 let particles:Particle[] = []
 
 const handleRoomResult = (result:RoomResult) => {
   logger.debug('room result', result)
-  roomActive = false
+  gameState = GameState.InRoomAfter
 }
 
 const handleRoomEvent = (event:RoomEvent) => {
@@ -58,7 +57,7 @@ const handleButtonPress = (actorNum:number, behaviorNum:number) => {
 
 const update = () => {
   // Room.update()
-  if (roomActive) {
+  if (gameState === GameState.InRoom) {
     const result = room.update()
     if (result) {
       handleRoomResult(result)

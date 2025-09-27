@@ -15,7 +15,7 @@ export enum RoomResult {
 }
 
 const genEnemies = ():Actor[] => {
-  return [new Actor(ActorType.Goblin)]
+  return [new Actor(ActorType.Goblin), new Actor(ActorType.Goblin), new Actor(ActorType.Goblin)]
 }
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
@@ -84,8 +84,9 @@ export class Room {
       player.newBattle(this.entrance.x + diff.x, this.entrance.y + diff.y, true)
     })
 
-    enemies.forEach(enemy => {
-      enemy.newBattle(1, 1, false)
+    const tempEnemyPos = [{ x: 1, y: 1 }, { x: 9, y: 9 }, { x: 8, y: 2 }]
+    enemies.forEach((enemy, i) => {
+      enemy.newBattle(tempEnemyPos[i].x, tempEnemyPos[i].y, false)
     })
 
     this.actors = this.actors.concat(playerTeam, enemies)
@@ -126,7 +127,7 @@ export class Room {
 
   damageActor = (actor:Actor, element:RElement) => {
     // TODO: figure damage
-    const damage = Math.floor(Math.random() * 12)
+    const damage = 20 + Math.floor(Math.random() * 12)
     actor.health -= damage
     element.damaged.push(actor)
     this.onEvent({ type: RoomEventType.Damage, amount: damage, to: actor, from: element.from })

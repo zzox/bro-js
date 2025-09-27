@@ -1,3 +1,5 @@
+import { names } from '../data/names'
+
 const canvas = document.getElementById('main-canvas') as HTMLCanvasElement
 
 const resizeCanvas = () => {
@@ -23,3 +25,8 @@ resizeCanvas()
 const ctx = canvas!.getContext('2d') as CanvasRenderingContext2D
 
 export { ctx }
+
+// TODO: remove
+ctx.font = '16px serif'
+ctx.fillStyle = 'white'
+ctx.fillText(`${names[Math.floor(Math.random() * names.length)]} BroOoOoOoOoOo`, 24, 24)
