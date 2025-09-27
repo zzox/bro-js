@@ -8,6 +8,7 @@ import { Actor, Behavior } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
 import { Room, RoomEvent, RoomEventType, RoomResult } from './world/room'
 import { ctx } from './ui/canvas'
+import { disableBattleUi, setupBattleUi } from './ui/room-ui'
 
 setLogLevel(LogLevel.Info)
 logger.debug('bro :)')
@@ -16,6 +17,7 @@ logger.debug('bro :)')
 const bgColor = window.getComputedStyle(document.body).getPropertyValue('--bg-color')
 
 enum GameState {
+  InRoomPre,
   InRoom,
   InRoomAfter,
   PostRoom
@@ -31,7 +33,7 @@ type Particle = {
 
 let image:HTMLImageElement
 let room:Room
-let gameState:GameState = GameState.InRoom
+let gameState:GameState = GameState.InRoomPre
 let actors:Actor[] = []
 let particles:Particle[] = []
 
@@ -50,9 +52,18 @@ const handleRoomEvent = (event:RoomEvent) => {
   createLogFromEvent(event)
 }
 
-const handleButtonPress = (actorNum:number, behaviorNum:number) => {
+const handlePlayerBehavior = (actorNum:number, behaviorNum:number) => {
   console.log(actorNum, behaviorNum)
   // lookup behaviors on actorData
+}
+
+const handleBattleStart = () => {
+  if (gameState === GameState.InRoomPre) {
+    gameState = GameState.InRoom
+    disableBattleUi()
+  } else {
+    throw 'Shouond t be here'
+  }
 }
 
 const update = () => {
@@ -148,7 +159,8 @@ const ready = () => {
   updatePlayerUi(actors)
   room = new Room(actors, handleRoomEvent)
   next()
-  setupPlayerUi(handleButtonPress)
+  setupPlayerUi(handlePlayerBehavior)
+  setupBattleUi(handleBattleStart)
 }
 
 const run = async () => {

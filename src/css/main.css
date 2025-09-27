@@ -53,6 +53,13 @@ button:hover {
   background-color: var(--other-bg-color);
 }
 
+button:disabled {
+  color: var(--other-bg-color);
+  border: .25em dashed var(--other-bg-color);
+  background-color: var(--bg-color);
+  cursor: not-allowed;
+}
+
 /* nav {
   display: flex;
   justify-content: space-between;
@@ -129,6 +136,18 @@ button:hover {
 
 #chars > .box {
   margin: 0 0 0.5em 0;
+}
+
+#battle {
+  display: flex;
+  flex-direction: column;
+}
+
+.battle-buttons {
+  width: 100%;
+  display: flex;
+  margin-top: 1em;
+  justify-content: center;
 }
 
 progress {
