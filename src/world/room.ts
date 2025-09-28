@@ -1,11 +1,11 @@
-import { actorData, ActorType } from '../data/actor-data'
+import { actorData, ActorType, Behavior } from '../data/actor-data'
 import { vec2, Vec2 } from '../data/globals'
 import { getActorSpellData, spellData, SpellType, SQRT2 } from '../data/spell-data'
 import { logger } from '../util/logger'
 import { Diagonal, pathfind } from '../util/pathfind'
 import { makeLine } from '../util/raytrace'
 import { distanceBetween, findNearest, isPosEq, recycle } from '../util/utils'
-import { Actor, ActorState, Behavior } from './actor'
+import { Actor, ActorState } from './actor'
 import { Grid, TileItem, makeGrid, mapGI, TileType, makeIntGrid, getGridItem } from './grid'
 
 export enum RoomResult {

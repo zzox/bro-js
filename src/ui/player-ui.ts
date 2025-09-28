@@ -60,7 +60,8 @@ const setImage = (icon:HTMLDivElement, tile:number) => {
 
 export const updatePlayerUi = (actors:Actor[]) => {
   actorUis.forEach((aui, i) => {
-    if (!actors[i]) {
+    const actor = actors[i]
+    if (!actor) {
       aui.item.classList.add('display-none')
       return
     } else {
@@ -72,9 +73,17 @@ export const updatePlayerUi = (actors:Actor[]) => {
     aui.name.textContent = actors[i].name
     // setImage(actorData.get(aui.type)!.tile)
 
-    // TEST: clear and then sometimes add, probably will be the model going forwards
-    // aui.buttons.forEach(btn => btn.classList.remove('display-none'))
-    // aui.buttons.forEach(btn => Math.random() < 0.5 ? btn.classList.add('display-none') : null)
+    aui.buttons.forEach((btn, j) => {
+      const behavior = actorData.get(actor.type)!.behaviors[j]
+      console.log(btn.textContent, j, behavior)
+      if (behavior) {
+        btn.classList.remove('display-none')
+        btn.children[0].textContent = behavior
+        actor.behavior === behavior ? btn.classList.add('selected') : btn.classList.remove('selected')
+      } else {
+        btn.classList.add('display-none')
+      }
+    })
   })
 }
 

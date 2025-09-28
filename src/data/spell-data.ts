@@ -16,7 +16,7 @@ export type SpellData = {
   tile:number
 }
 
-export const spellData:Map<SpellType, SpellData> = new Map();
+export const spellData:Map<SpellType, SpellData> = new Map()
 
 spellData.set(SpellType.Cut, { time: 1, range: SQRT2, tile: 256 })
 spellData.set(SpellType.Fire, { time: 10, range: MAXDIST, tile: 257 })
