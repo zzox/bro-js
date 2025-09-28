@@ -6,6 +6,7 @@ const MAX_ACTORS = 6
 let actorUis:PlayerUi[] = []
 
 type PlayerUi = {
+  item:Element
   name:HTMLParagraphElement
   icon:HTMLDivElement
   hpBar:HTMLProgressElement
@@ -27,6 +28,7 @@ export const setupPlayerUi = (buttonCallback:BehaviorCallback) => {
     })
 
     return {
+      item,
       name: item.querySelector('.char-name')!,
       icon: item.querySelector('.ssimg')!,
       hpBar: item.querySelector('.hp-bar')!,
@@ -51,15 +53,21 @@ const setImage = (icon:HTMLDivElement, tile:number) => {
 }
 
 export const updatePlayerUi = (actors:Actor[]) => {
-  actorUis.forEach((actor, i) => {
-    actor.hpBar.value = actors[i].health
-    actor.hpBar.max = actors[i].maxHealth
+  actorUis.forEach((aui, i) => {
+    if (!actors[i]) {
+      aui.item.classList.add('display-none')
+      return
+    } else {
+      aui.item.classList.remove('display-none')
+    }
+    aui.hpBar.value = actors[i].health
+    aui.hpBar.max = actors[i].maxHealth
     // move out to method when the elements are removed
-    actor.name.textContent = actors[i].name
-    // setImage(actorData.get(actor.type)!.tile)
+    aui.name.textContent = actors[i].name
+    // setImage(actorData.get(aui.type)!.tile)
 
     // TEST: clear and then sometimes add, probably will be the model going forwards
-    // actor.buttons.forEach(btn => btn.classList.remove('display-none'))
-    // actor.buttons.forEach(btn => Math.random() < 0.5 ? btn.classList.add('display-none') : null)
+    // aui.buttons.forEach(btn => btn.classList.remove('display-none'))
+    // aui.buttons.forEach(btn => Math.random() < 0.5 ? btn.classList.add('display-none') : null)
   })
 }

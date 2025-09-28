@@ -20,6 +20,12 @@ const genEnemies = ():Actor[] => {
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
 
+export enum RoomState {
+  PreBattle,
+  Battle,
+  PostBattle,
+}
+
 export enum RoomEventType {
   Death = 'Death',
   Damage = 'Damage',
@@ -50,6 +56,8 @@ export type RElement = {
 
 export class Room {
   grid:Grid<TileItem>
+
+  state:RoomState = RoomState.PreBattle
 
   actors:Actor[] = []
 

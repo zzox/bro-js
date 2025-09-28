@@ -5,7 +5,7 @@ import { setupPlayerUi, updatePlayerUi } from './ui/player-ui'
 import { logger, LogLevel, setLogLevel } from './util/logger'
 import { Actor, Behavior } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
-import { Room, RoomEvent, RoomEventType, RoomResult } from './world/room'
+import { Room, RoomEvent, RoomEventType, RoomResult, RoomState } from './world/room'
 import { ctx } from './ui/canvas'
 import { setBattleUi, setupBattleUi } from './ui/room-ui'
 
@@ -31,8 +31,9 @@ type Particle = {
 }
 
 let image:HTMLImageElement
+let floorNum:number = 0
 let room:Room
-let gameState:GameState = GameState.InRoomPre
+let gameState:GameState
 let actors:Actor[] = []
 let particles:Particle[] = []
 let fastForward = false
@@ -40,6 +41,7 @@ let fastForward = false
 const handleRoomResult = (result:RoomResult) => {
   logger.debug('room result', result)
   gameState = GameState.InRoomAfter
+  actors = actors.filter(a => a.isAlive)
   setTimeout(() => {
     newRoom()
   }, 3000)
@@ -47,6 +49,7 @@ const handleRoomResult = (result:RoomResult) => {
 
 const newRoom = () => {
   setBattleUi(true)
+  updatePlayerUi(actors)
   gameState = GameState.InRoomPre
   room = new Room(actors, handleRoomEvent)
 }
@@ -169,7 +172,7 @@ const next = () => {
 
 const ready = () => {
   actors = [new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight)]
-  room = new Room(actors, handleRoomEvent)
+  newRoom()
   setupPlayerUi(handlePlayerBehavior)
   setupBattleUi(handleBattleStart)
   updatePlayerUi(actors)
