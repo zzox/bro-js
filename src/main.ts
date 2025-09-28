@@ -1,7 +1,7 @@
 import { actorData, ActorType } from './data/actor-data'
 import { spellData } from './data/spell-data'
 import { createLogFromEvent } from './ui/logs'
-import { setupPlayerUi, updatePlayerUi } from './ui/player-ui'
+import { setBehaviorButtons, setupPlayerUi, updatePlayerUi } from './ui/player-ui'
 import { logger, LogLevel, setLogLevel } from './util/logger'
 import { Actor, Behavior } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
@@ -49,6 +49,7 @@ const handleRoomResult = (result:RoomResult) => {
 
 const newRoom = () => {
   setBattleUi(true)
+  setBehaviorButtons(true)
   updatePlayerUi(actors)
   gameState = GameState.InRoomPre
   room = new Room(actors, handleRoomEvent)
@@ -69,12 +70,14 @@ const handleRoomEvent = (event:RoomEvent) => {
 const handlePlayerBehavior = (actorNum:number, behaviorNum:number) => {
   console.log(actorNum, behaviorNum)
   // lookup behaviors on actorData
+  actors[actorNum].behavior = behaviorNum === 0 ? Behavior.Aggro : Behavior.Evade
 }
 
 const handleBattleStart = () => {
   if (gameState === GameState.InRoomPre) {
     gameState = GameState.InRoom
     setBattleUi(false)
+    setBehaviorButtons(false)
   } else {
     throw 'Shouond t be here'
   }

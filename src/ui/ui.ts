@@ -1,6 +1,8 @@
 // @ts-ignore
 export const $q = (query:string):HTMLElement => document.querySelector(query)
 // @ts-ignore
+export const $qAll = (query:string):HTMLElement[] => Array.from(document.querySelectorAll(query))
+// @ts-ignore
 export const $id = (id:string):HTMLElement => document.getElementById(id)
 export const $make = (type:string):HTMLElement => document.createElement(type)
 

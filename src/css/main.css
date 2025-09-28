@@ -9,6 +9,8 @@
   --color: #cbd1be;
   --green: #5d7643;
   --blue: #3870be;
+  --red: #a93130;
+  --dark-red: #7a1338;
   font-size: max(1vh, 16px);
   /* --top: 999; */
 }
@@ -58,6 +60,21 @@ button:disabled {
   border: .25em dashed var(--other-bg-color);
   background-color: var(--bg-color);
   cursor: not-allowed;
+}
+
+.selected {
+  background-color: var(--red);
+}
+
+.selected:disabled {
+  color: var(--other-bg-color);
+  border: .25em dashed var(--other-bg-color);
+  background-color: var(--dark-red);
+  cursor: not-allowed;
+}
+
+.selected:hover {
+  background-color: var(--dark-red);
 }
 
 /* nav {

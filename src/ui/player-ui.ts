@@ -1,6 +1,6 @@
 import { actorData } from '../data/actor-data'
 import { Actor } from '../world/actor'
-import { $q } from './ui'
+import { $q, $qAll } from './ui'
 
 const MAX_ACTORS = 6
 let actorUis:PlayerUi[] = []
@@ -20,9 +20,15 @@ export const setupPlayerUi = (buttonCallback:BehaviorCallback) => {
   actorUis = Array.from(document.querySelectorAll('.char')).map((item, i) => {
     const buttons = Array.from(item.querySelectorAll('button'))
 
+    const clearButtons = () => {
+      buttons.forEach(btn => btn.classList.remove('selected'))
+    }
+
     buttons.forEach((btn, j) => {
       btn.onclick = () => {
         buttonCallback(i, j)
+        clearButtons()
+        btn.classList.add('selected')
       }
       btn.querySelector('p')!.textContent = ['Aggro', 'Mixed', 'Evade'][j]
     })
@@ -70,4 +76,8 @@ export const updatePlayerUi = (actors:Actor[]) => {
     // aui.buttons.forEach(btn => btn.classList.remove('display-none'))
     // aui.buttons.forEach(btn => Math.random() < 0.5 ? btn.classList.add('display-none') : null)
   })
+}
+
+export const setBehaviorButtons = (enabled:boolean) => {
+  ($qAll('.char-button') as HTMLButtonElement[]).forEach(btn => btn.disabled = !enabled)
 }
