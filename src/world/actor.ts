@@ -1,4 +1,4 @@
-import { ActorType } from '../data/actor-data'
+import { ActorType, isPlayerActor } from '../data/actor-data'
 import { Vec2 } from '../data/globals'
 import { names } from '../data/names'
 import { RElement } from './room'
@@ -39,7 +39,7 @@ export class Actor {
     this.maxHealth = 100
 
     // this.battleData = {}
-    this.name = names[Math.floor(Math.random() * names.length)]
+    this.name = isPlayerActor(type) ? names[Math.floor(Math.random() * names.length)] : `A ${type}`
     this.type = type
   }
 
