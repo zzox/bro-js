@@ -207,7 +207,7 @@ export class Room {
     // first is actually second, because we get rid of the first
     if (ranged) {
       const zeroth = path.shift()
-      console.log(zeroth!.x === actor.bd.x && zeroth!.y === actor.bd.y)
+      // console.log(zeroth!.x === actor.bd.x && zeroth!.y === actor.bd.y)
     }
     const first = path.shift()
 

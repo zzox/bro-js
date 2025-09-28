@@ -1,5 +1,4 @@
 import { actorData, ActorType } from './data/actor-data'
-import { names } from './data/names'
 import { spellData } from './data/spell-data'
 import { createLogFromEvent } from './ui/logs'
 import { setupPlayerUi, updatePlayerUi } from './ui/player-ui'
@@ -8,7 +7,7 @@ import { Actor, Behavior } from './world/actor'
 import { forEachGI, makeGrid, TileType } from './world/grid'
 import { Room, RoomEvent, RoomEventType, RoomResult } from './world/room'
 import { ctx } from './ui/canvas'
-import { disableBattleUi, setupBattleUi } from './ui/room-ui'
+import { setBattleUi, setupBattleUi } from './ui/room-ui'
 
 setLogLevel(LogLevel.Info)
 logger.debug('bro :)')
@@ -36,10 +35,20 @@ let room:Room
 let gameState:GameState = GameState.InRoomPre
 let actors:Actor[] = []
 let particles:Particle[] = []
+let fastForward = false
 
 const handleRoomResult = (result:RoomResult) => {
   logger.debug('room result', result)
   gameState = GameState.InRoomAfter
+  setTimeout(() => {
+    newRoom()
+  }, 3000)
+}
+
+const newRoom = () => {
+  setBattleUi(true)
+  gameState = GameState.InRoomPre
+  room = new Room(actors, handleRoomEvent)
 }
 
 const handleRoomEvent = (event:RoomEvent) => {
@@ -62,7 +71,7 @@ const handlePlayerBehavior = (actorNum:number, behaviorNum:number) => {
 const handleBattleStart = () => {
   if (gameState === GameState.InRoomPre) {
     gameState = GameState.InRoom
-    disableBattleUi()
+    setBattleUi(false)
   } else {
     throw 'Shouond t be here'
   }
@@ -150,7 +159,9 @@ const draw = () => {
 }
 
 const next = () => {
-  update()
+  let updates = 1
+  if (fastForward) updates += 7
+  for (let i = 0; i < updates; i++) update()
   draw()
 
   requestAnimationFrame(next)
@@ -158,11 +169,11 @@ const next = () => {
 
 const ready = () => {
   actors = [new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight)]
-  updatePlayerUi(actors)
   room = new Room(actors, handleRoomEvent)
-  next()
   setupPlayerUi(handlePlayerBehavior)
   setupBattleUi(handleBattleStart)
+  updatePlayerUi(actors)
+  next()
 }
 
 const run = async () => {
@@ -178,6 +189,17 @@ const run = async () => {
   //       new Promise((resolve) => image.addEventListener('load', resolve)),
   //   ),
   // );
+
+  document.onkeydown = (event:KeyboardEvent) => {
+    if (event.key === 'f') {
+      fastForward = true
+    }
+  }
+  document.onkeyup = (event:KeyboardEvent) => {
+    if (event.key === 'f') {
+      fastForward = false
+    }
+  }
 
   image.addEventListener('load', ready)
 }

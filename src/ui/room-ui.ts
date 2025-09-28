@@ -6,6 +6,6 @@ export const setupBattleUi = (uiCallback:() => void) => {
   button.onclick = uiCallback
 }
 
-export const disableBattleUi = () => {
-  button.disabled = true
+export const setBattleUi = (enabled:boolean) => {
+  button.disabled = !enabled
 }
