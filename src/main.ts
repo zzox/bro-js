@@ -60,8 +60,7 @@ const handleRoomEvent = (event:RoomEvent) => {
   // console.time('asdf')
   updatePlayerUi(actors)
   // console.timeEnd('asdf')
-  if (event.type === RoomEventType.AttackEnd) {
-    // right now its a sword
+  if (event.type === RoomEventType.SpellEnd) {
     particles.push({ tile: spellData.get(event.spell!)!.tile, collTime: 5, time: 30, x: event.x!, y: event.y! })
   }
   createLogFromEvent(event)
@@ -70,7 +69,7 @@ const handleRoomEvent = (event:RoomEvent) => {
 const handlePlayerBehavior = (actorNum:number, behaviorNum:number) => {
   console.log(actorNum, behaviorNum)
   // lookup behaviors on actorData
-  actors[actorNum].behavior = behaviorNum === 0 ? Behavior.Aggro : Behavior.Evade
+  actors[actorNum].behavior = actorData.get(actors[actorNum].type)!.behaviors[behaviorNum]
 }
 
 const handleBattleStart = () => {
@@ -174,7 +173,7 @@ const next = () => {
 }
 
 const ready = () => {
-  actors = [new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight), new Actor(ActorType.Knight)]
+  actors = [new Actor(ActorType.Archer), new Actor(ActorType.Archer), new Actor(ActorType.Archer), new Actor(ActorType.Archer)]
   newRoom()
   setupPlayerUi(handlePlayerBehavior)
   setupBattleUi(handleBattleStart)

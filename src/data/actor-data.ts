@@ -29,6 +29,6 @@ actorData.set(ActorType.Archer, { tile: 1, aggroSpell: SpellType.Arrow, helpSpel
 actorData.set(ActorType.Mage, { tile: 2, aggroSpell: SpellType.Stab, helpSpell: SpellType.Heal, behaviors: [Behavior.Aggro, Behavior.Help, Behavior.Evade] })
 actorData.set(ActorType.Goblin, { tile: 32, aggroSpell: SpellType.Fire, behaviors: [Behavior.Aggro] })
 
-const playerActors = [ActorType.Knight]
+const playerActors = [ActorType.Knight, ActorType.Archer, ActorType.Mage]
 export const isPlayerActor = (actorType:ActorType) =>
   playerActors.includes(actorType)

@@ -75,7 +75,7 @@ export const updatePlayerUi = (actors:Actor[]) => {
 
     aui.buttons.forEach((btn, j) => {
       const behavior = actorData.get(actor.type)!.behaviors[j]
-      console.log(btn.textContent, j, behavior)
+      // console.log(btn.textContent, j, behavior)
       if (behavior) {
         btn.classList.remove('display-none')
         btn.children[0].textContent = behavior

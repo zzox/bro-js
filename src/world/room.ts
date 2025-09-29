@@ -1,6 +1,6 @@
 import { actorData, ActorType, Behavior } from '../data/actor-data'
 import { vec2, Vec2 } from '../data/globals'
-import { getActorSpellData, spellData, SpellType, SQRT2 } from '../data/spell-data'
+import { getActorSpell, getActorSpellData, spellData, SpellType, SQRT2 } from '../data/spell-data'
 import { logger } from '../util/logger'
 import { Diagonal, pathfind } from '../util/pathfind'
 import { makeLine } from '../util/raytrace'
@@ -19,6 +19,10 @@ const genEnemies = ():Actor[] => {
 }
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
+
+// does the actor need help from this spell
+const needsHelp = (actor:Actor, spell:SpellType) =>
+  actor.health / actor.maxHealth < 0.66
 
 export enum RoomState {
   PreBattle,
@@ -133,12 +137,18 @@ export class Room {
     return null
   }
 
-  damageActor = (actor:Actor, element:RElement) => {
+  affectActor = (actor:Actor, element:RElement) => {
     // TODO: figure damage
-    const damage = 20 + Math.floor(Math.random() * 12)
-    actor.health -= damage
+    const data = spellData.get(element.type)!
+
+    actor.health -= data.damage
     element.damaged.push(actor)
-    this.onEvent({ type: RoomEventType.Damage, amount: damage, to: actor, from: element.from })
+    this.onEvent({ type: RoomEventType.Damage, amount: data.damage, to: actor, from: element.from })
+
+    // if we cannot pass through an enemy, element's time ends here
+    if (data.through === false) {
+      element.time = 0
+    }
   }
 
   updateElement = (element:RElement) => {
@@ -160,7 +170,7 @@ export class Room {
 
     this.actors.forEach(actor => {
       if (isPosEq(actor.bd.x, actor.bd.y, element.x, element.y) && !element.damaged.includes(actor)) {
-        this.damageActor(actor, element)
+        this.affectActor(actor, element)
       }
     })
 
@@ -201,15 +211,32 @@ export class Room {
       } else {
         this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
       }
+    } else if (actor.behavior === Behavior.Help) {
+      const teammates = (actor.bd.isPlayer ? this.getPlayers() : this.getEnemies()).filter(t => needsHelp(t, getActorSpell(actor)))
+      const nearest = findNearest(actor.bd.x, actor.bd.y, teammates)
+      if (!nearest) {
+        // TODO: attack if we cant heal
+        console.log('No one to heal')
+        return
+      }
+
+      const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
+
+      // sqrt(2) is under 1.5
+      if (nearestDist <= getActorSpellData(actor).range) {
+        this.trySpell(actor, nearest.bd.x, nearest.bd.y)
+      } else {
+        this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
+      }
     } else if (actor.behavior === Behavior.Evade) {
       this.tryMoveActor(actor, this.exit.x, this.exit.y)
     }
   }
 
-  addElement (actor:Actor) {
-    const spell = getActorSpellData(actor)
+  addElement (actor:Actor, spell:SpellType) {
+    const sData = spellData.get(spell)!
 
-    const ranged = spell.range > SQRT2
+    const ranged = sData.range > SQRT2
     const path = ranged ? makeLine(actor.bd.x, actor.bd.y, actor.bd.spellPos!.x, actor.bd.spellPos!.y) : []
 
     // first is actually second, because we get rid of the first
@@ -223,12 +250,12 @@ export class Room {
     const startY = ranged ? first!.y : actor.bd.spellPos!.y
 
     this.elements.push({
-      type: actorData.get(actor.type)!.aggroSpell!,
+      type: spell,
       x: startX,
       y: startY,
       path,
       damaged: [],
-      time: spell.time,
+      time: sData.time,
       from: actor
     })
   }
@@ -241,8 +268,10 @@ export class Room {
 
   doSpell (actor:Actor) {
     if (!actor.bd.spellPos) throw 'No Spell Pos!'
-    this.addElement(actor)
-    this.onEvent({ type: RoomEventType.Spell, from: actor, x: actor.bd.spellPos.x, y: actor.bd.spellPos.y })
+    const spell = getActorSpell(actor)
+    console.log('actor spell', spell, spell === SpellType.Heal)
+    this.addElement(actor, spell)
+    this.onEvent({ type: RoomEventType.Spell, spell, from: actor, x: actor.bd.spellPos.x, y: actor.bd.spellPos.y })
     actor.bd.spellPos = undefined
     actor.bd.state = ActorState.Spell
     actor.bd.stateTime = 60 // lookup from spell, add dexterity

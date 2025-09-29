@@ -23,12 +23,14 @@ export const createLogFromEvent = (event:RoomEvent) => {
     case RoomEventType.Leave:
       string = `${$span(event.from!.name, 'WHITESMOKE')} left`
       break
-    case RoomEventType.AttackEnd:
+    case RoomEventType.SpellEnd:
       if (event.amount === 0) {
         string = `${$span(event.from!.name, 'WHITESMOKE')} missed`
+        break
       }
+      return
     default:
-      logger.info('no log handler for event:', event.type)
+      logger.log('no log handler for event:', event.type)
       return
   }
 
