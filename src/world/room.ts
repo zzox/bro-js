@@ -191,11 +191,14 @@ export class Room {
       this.doSpell(actor)
     }
 
+    const opponents = actor.bd.isPlayer ? this.getEnemies() : this.getPlayers()
+    const teammmates = actor.bd.isPlayer ? this.getPlayers() : this.getEnemies()
+
     // if we arent waiting, we should return
     if (actor.bd.state !== ActorState.Wait) return
 
     if (actor.behavior === Behavior.Aggro) {
-      const nearest = findNearest(actor.bd.x, actor.bd.y, actor.bd.isPlayer ? this.getEnemies() : this.getPlayers())
+      const nearest = findNearest(actor.bd.x, actor.bd.y, opponents)
       if (!nearest) {
         // leave if there's noone
         this.tryMoveActor(actor, this.exit.x, this.exit.y)
@@ -212,10 +215,16 @@ export class Room {
         this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
       }
     } else if (actor.behavior === Behavior.Help) {
-      const teammates = (actor.bd.isPlayer ? this.getPlayers() : this.getEnemies()).filter(t => needsHelp(t, getActorSpell(actor)))
-      const nearest = findNearest(actor.bd.x, actor.bd.y, teammates)
+      const helpTeammates = teammmates.filter(t => needsHelp(t, getActorSpell(actor)))
+      if (helpTeammates.length === 0 && opponents.length === 0) {
+        // exit if there's noone to help or heal
+        this.tryMoveActor(actor, this.exit.x, this.exit.y)
+        return
+      }
+
+      const nearest = findNearest(actor.bd.x, actor.bd.y, helpTeammates)
       if (!nearest) {
-        // TODO: attack if we cant heal
+        // TODO: attack if we cant heal?
         console.log('No one to heal')
         return
       }
