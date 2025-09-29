@@ -29,8 +29,8 @@ export enum RoomState {
 export enum RoomEventType {
   Death = 'Death',
   Damage = 'Damage',
-  Attack = 'Attack',
-  AttackEnd = 'AttackEnd',
+  Spell = 'Spell',
+  SpellEnd = 'SpellEnd',
   Leave = 'Leave',
 }
 
@@ -165,7 +165,7 @@ export class Room {
     })
 
     if (element.time === 0) {
-      this.onEvent({ type: RoomEventType.AttackEnd, x: element.x, y: element.y, spell: element.type, from: element.from, amount: element.damaged.length })
+      this.onEvent({ type: RoomEventType.SpellEnd, x: element.x, y: element.y, spell: element.type, from: element.from, amount: element.damaged.length })
     }
   }
 
@@ -173,12 +173,12 @@ export class Room {
     actor.bd.stateTime--
     if (actor.bd.stateTime > 0) return
 
-    if (actor.bd.state == ActorState.Attack) {
+    if (actor.bd.state == ActorState.Spell) {
       actor.bd.state = ActorState.Wait
     }
 
-    if (actor.bd.state === ActorState.PreAttack) {
-      this.doAttack(actor)
+    if (actor.bd.state === ActorState.PreSpell) {
+      this.doSpell(actor)
     }
 
     // if we arent waiting, we should return
@@ -197,7 +197,7 @@ export class Room {
       // sqrt(2) is under 1.5
 
       if (nearestDist <= getActorSpellData(actor).range) {
-        this.tryAttack(actor, nearest.bd.x, nearest.bd.y)
+        this.trySpell(actor, nearest.bd.x, nearest.bd.y)
       } else {
         this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
       }
@@ -210,7 +210,7 @@ export class Room {
     const spell = getActorSpellData(actor)
 
     const ranged = spell.range > SQRT2
-    const path = ranged ? makeLine(actor.bd.x, actor.bd.y, actor.bd.attackPos!.x, actor.bd.attackPos!.y) : []
+    const path = ranged ? makeLine(actor.bd.x, actor.bd.y, actor.bd.spellPos!.x, actor.bd.spellPos!.y) : []
 
     // first is actually second, because we get rid of the first
     if (ranged) {
@@ -219,11 +219,11 @@ export class Room {
     }
     const first = path.shift()
 
-    const startX = ranged ? first!.x : actor.bd.attackPos!.x
-    const startY = ranged ? first!.y : actor.bd.attackPos!.y
+    const startX = ranged ? first!.x : actor.bd.spellPos!.x
+    const startY = ranged ? first!.y : actor.bd.spellPos!.y
 
     this.elements.push({
-      type: actorData.get(actor.type)!.offSpell!,
+      type: actorData.get(actor.type)!.aggroSpell!,
       x: startX,
       y: startY,
       path,
@@ -233,18 +233,18 @@ export class Room {
     })
   }
 
-  tryAttack (actor:Actor, x:number, y:number) {
-    actor.bd.attackPos = vec2(x, y)
-    actor.bd.state = ActorState.PreAttack
+  trySpell (actor:Actor, x:number, y:number) {
+    actor.bd.spellPos = vec2(x, y)
+    actor.bd.state = ActorState.PreSpell
     actor.bd.stateTime = 30 // lookup from spell
   }
 
-  doAttack (actor:Actor) {
-    if (!actor.bd.attackPos) throw 'No Attack Pos!'
+  doSpell (actor:Actor) {
+    if (!actor.bd.spellPos) throw 'No Spell Pos!'
     this.addElement(actor)
-    this.onEvent({ type: RoomEventType.Attack, from: actor, x: actor.bd.attackPos.x, y: actor.bd.attackPos.y })
-    actor.bd.attackPos = undefined
-    actor.bd.state = ActorState.Attack
+    this.onEvent({ type: RoomEventType.Spell, from: actor, x: actor.bd.spellPos.x, y: actor.bd.spellPos.y })
+    actor.bd.spellPos = undefined
+    actor.bd.state = ActorState.Spell
     actor.bd.stateTime = 60 // lookup from spell, add dexterity
   }
 

@@ -1,7 +1,6 @@
 import { ActorType, Behavior, isPlayerActor } from '../data/actor-data'
 import { Vec2 } from '../data/globals'
 import { names } from '../data/names'
-import { RElement } from './room'
 
 type BattleData = {
   state:ActorState
@@ -10,13 +9,13 @@ type BattleData = {
   y:number
   isPlayer:boolean
   // spell:Spell
-  attackPos?:Vec2
+  spellPos?:Vec2
 }
 
 export enum ActorState {
   Wait, // move
-  PreAttack,
-  Attack,
+  PreSpell,
+  Spell,
 }
 
 export class Actor {

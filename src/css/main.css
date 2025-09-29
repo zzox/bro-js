@@ -167,6 +167,10 @@ button:disabled {
   justify-content: center;
 }
 
+.battle-buttons > button > p {
+  font-size: 1.25rem;
+}
+
 progress {
   border-radius: 0;
   margin-bottom: 0.25rem;
