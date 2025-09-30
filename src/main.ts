@@ -141,8 +141,8 @@ const drawTile = (/*image:HTMLImageElement, */ index:number, x:number, y:number,
 
 enum NumberColor {
   Red = 0,
-  Gold = 1,
-  Green = 2,
+  Green = 1,
+  Gold = 2,
 }
 const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 const drawNumbers = (number:number, color:NumberColor, x:number, y:number) => {
@@ -197,7 +197,7 @@ const next = () => {
 }
 
 const ready = () => {
-  actors = [new Actor(ActorType.Archer), new Actor(ActorType.Archer), new Actor(ActorType.Archer), new Actor(ActorType.Archer)]
+  actors = [new Actor(ActorType.Archer), new Actor(ActorType.Knight), new Actor(ActorType.Archer), new Actor(ActorType.Mage)]
   newRoom()
   setupPlayerUi(handlePlayerBehavior)
   setupBattleUi(handleBattleStart)

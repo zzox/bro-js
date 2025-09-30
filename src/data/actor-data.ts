@@ -14,8 +14,7 @@ export enum Behavior {
   Evade = 'Evade',
 }
 
-type ExpSpeed = number[]
-
+type ExpInc = number[]
 const low01 = [0, 1]
 const low02 = [0, 1, 1]
 const low10 = [0, 1, 1, 2]
@@ -35,16 +34,16 @@ enum StatType {
   Dex = 'Dex',
 }
 
-// type Stat = [StatType, ExpSpeed]
+// type Stat = [StatType, ExpInc]
 type Stats = {
-  [StatType.MaxHealth]: ExpSpeed
-  [StatType.Speed]: ExpSpeed
-  [StatType.Power]: ExpSpeed
-  [StatType.Int]: ExpSpeed
-  [StatType.Dex]: ExpSpeed
+  [StatType.MaxHealth]: ExpInc
+  [StatType.Speed]: ExpInc
+  [StatType.Power]: ExpInc
+  [StatType.Int]: ExpInc
+  [StatType.Dex]: ExpInc
 }
 
-type CompStats = {
+export type CompStats = {
   [StatType.MaxHealth]: number
   [StatType.Speed]: number
   [StatType.Power]: number

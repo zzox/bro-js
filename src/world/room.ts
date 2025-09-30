@@ -1,6 +1,6 @@
 import { actorData, ActorType, Behavior } from '../data/actor-data'
 import { vec2, Vec2 } from '../data/globals'
-import { getActorSpell, getActorSpellData, spellData, SpellType, SQRT2 } from '../data/spell-data'
+import { getActorSpell, getActorSpellData, spellData, SpellType, FSQRT2, isMagic } from '../data/spell-data'
 import { logger } from '../util/logger'
 import { Diagonal, pathfind } from '../util/pathfind'
 import { makeLine } from '../util/raytrace'
@@ -138,12 +138,18 @@ export class Room {
   }
 
   affectActor = (actor:Actor, element:RElement) => {
-    // TODO: figure damage
     const data = spellData.get(element.type)!
 
-    actor.health -= data.damage
+    // if magic, the power is int
+    const p = isMagic(element.type) ? actor.bd.stats.Int : actor.bd.stats.Power
+
+    const damage = Math.floor(data.damage * (1 + p / 128))
+
+    actor.health -= damage
     element.damaged.push(actor)
-    this.onEvent({ type: RoomEventType.Damage, amount: data.damage, to: actor, from: element.from, x: element.x, y: element.y })
+    this.onEvent({ type: RoomEventType.Damage, amount: damage, to: actor, from: element.from, x: element.x, y: element.y })
+
+    // TODO: add actor damagedBy
 
     // if we cannot pass through an enemy, element's time ends here
     if (data.through === false) {
@@ -245,7 +251,7 @@ export class Room {
   addElement (actor:Actor, spell:SpellType) {
     const sData = spellData.get(spell)!
 
-    const ranged = sData.range > SQRT2
+    const ranged = sData.range > FSQRT2
     const path = ranged ? makeLine(actor.bd.x, actor.bd.y, actor.bd.spellPos!.x, actor.bd.spellPos!.y) : []
 
     // first is actually second, because we get rid of the first
@@ -278,7 +284,7 @@ export class Room {
   doSpell (actor:Actor) {
     if (!actor.bd.spellPos) throw 'No Spell Pos!'
     const spell = getActorSpell(actor)
-    console.log('actor spell', spell, spell === SpellType.Heal)
+    // console.log('actor spell', spell, spell === SpellType.Heal)
     this.addElement(actor, spell)
     this.onEvent({ type: RoomEventType.Spell, spell, from: actor, x: actor.bd.spellPos.x, y: actor.bd.spellPos.y })
     actor.bd.spellPos = undefined
@@ -296,9 +302,13 @@ export class Room {
     }
     const items = recycle(path)
 
+    const isDiagonal = actor.bd.x !== items[0].x && actor.bd.y !== items[0].y
+
     actor.bd.x = items[0].x
     actor.bd.y = items[0].y
-    actor.bd.stateTime = 10 + Math.floor(Math.random() * 10)
+
+    const time = Math.floor((256 - actor.bd.stats.Speed) / 10)
+    actor.bd.stateTime = isDiagonal ? time * Math.SQRT2 : time
   }
 
   checkCollisions (x:number, y:number) {

@@ -1,4 +1,4 @@
-import { ActorType, Behavior, isPlayerActor } from '../data/actor-data'
+import { actorData, ActorType, Behavior, CompStats, getStatsFromLevel, isPlayerActor } from '../data/actor-data'
 import { Vec2 } from '../data/globals'
 import { names } from '../data/names'
 
@@ -10,6 +10,8 @@ type BattleData = {
   isPlayer:boolean
   // spell:Spell
   spellPos?:Vec2
+  stats:CompStats
+  exp:number
 }
 
 export enum ActorState {
@@ -25,7 +27,7 @@ export class Actor {
 
   health:number
   maxHealth:number
-  level:number = 5
+  level:number = 10
   experience:number = 1000
 
   battleData!:BattleData
@@ -40,7 +42,10 @@ export class Actor {
   }
 
   newBattle (x:number, y:number, isPlayer:boolean) {
-    this.battleData = { x, y, state: ActorState.Wait, stateTime: 10, isPlayer }
+    this.battleData = {
+      x, y, state: ActorState.Wait, stateTime: 10, isPlayer, exp: 0,
+      stats: getStatsFromLevel(this.level, actorData.get(this.type)!.stats)
+    }
   }
 
   get bd () {
