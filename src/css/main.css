@@ -216,3 +216,13 @@ progress::-moz-progress-bar {
 .RED { color: var(--red); }
 .GREEN { color: var(--green); }
 .BLUE { color: var(--blue); }
+
+@media (max-width: 800px) {
+  main {
+    flex-direction: column;
+    height: unset;
+  }
+  #chars { order: 2; }
+  #battle { order: 1; }
+  #logs { order: 2; }
+}

@@ -13,7 +13,8 @@ const resizeCanvas = () => {
   const availH = canvas.parentElement!.getBoundingClientRect().height
   const maxW = Math.floor(availW / (w - padding))
   const maxH = Math.floor(availH / (h - padding))
-  const multi = Math.min(Math.min(maxW, maxH), maxMulti)
+  // lower than maxMultiplier, but at least two
+  const multi = Math.max(Math.min(Math.min(maxW, maxH), maxMulti), 2)
 
   canvas.style.width = `${multi * w}px`
   canvas.style.height = `${multi * h}px`
