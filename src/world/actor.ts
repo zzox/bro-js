@@ -25,11 +25,13 @@ export class Actor {
 
   health:number
   maxHealth:number
+  level:number = 5
+  experience:number = 1000
 
   battleData!:BattleData
 
   constructor (type:ActorType) {
-    this.health = 75
+    this.health = 100
     this.maxHealth = 100
 
     // this.battleData = {}

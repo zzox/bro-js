@@ -4,7 +4,7 @@ import { createLogFromEvent } from './ui/logs'
 import { setBehaviorButtons, setupPlayerUi, updatePlayerUi } from './ui/player-ui'
 import { logger, LogLevel, setLogLevel } from './util/logger'
 import { Actor } from './world/actor'
-import { forEachGI, makeGrid, TileType } from './world/grid'
+import { forEachGI, TileType } from './world/grid'
 import { Room, RoomEvent, RoomEventType, RoomResult, RoomState } from './world/room'
 import { ctx } from './ui/canvas'
 import { setBattleUi, setupBattleUi } from './ui/room-ui'
@@ -94,6 +94,7 @@ const update = () => {
       particle.time--
       particle.collTime--
 
+      // if collision time is less than zero and there is a collision
       if (particle.collTime <= 0) {
         room.actors.forEach(actor => {
           // TODO: get isPosEq
