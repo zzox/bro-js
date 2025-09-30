@@ -52,9 +52,9 @@ const handleRoomResult = (result:RoomResult) => {
 const newRoom = () => {
   setBattleUi(true)
   setBehaviorButtons(true)
-  updatePlayerUi(actors)
   gameState = GameState.InRoomPre
   room = new Room(actors, handleRoomEvent)
+  updatePlayerUi(actors)
 }
 
 const handleRoomEvent = (event:RoomEvent) => {

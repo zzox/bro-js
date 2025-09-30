@@ -134,10 +134,17 @@ button:disabled {
 .char-title {
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
 
 .char-name {
   font-size: 1.25rem;
+}
+
+/* https://stackoverflow.com/a/33856609 */
+.char-level {
+  font-size: 1.0rem;
+  margin-left: auto;
 }
 
 .char-buttons {
@@ -179,6 +186,8 @@ progress {
   inline-size: auto;
   width: calc(100%);
   background-color: var(--bg-color);
+  inline-size: none;
+  display: block;
 }
 progress::-webkit-progress-bar {
   background-color: var(--bg-color);

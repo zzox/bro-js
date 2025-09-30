@@ -8,6 +8,7 @@ let actorUis:PlayerUi[] = []
 type PlayerUi = {
   item:Element
   name:HTMLParagraphElement
+  level:HTMLParagraphElement
   icon:HTMLDivElement
   hpBar:HTMLProgressElement
   stepBar:HTMLProgressElement
@@ -36,6 +37,7 @@ export const setupPlayerUi = (buttonCallback:BehaviorCallback) => {
     return {
       item,
       name: item.querySelector('.char-name')!,
+      level: item.querySelector('.char-level')!,
       icon: item.querySelector('.ssimg')!,
       hpBar: item.querySelector('.hp-bar')!,
       stepBar: item.querySelector('.step-bar')!,
@@ -67,11 +69,19 @@ export const updatePlayerUi = (actors:Actor[]) => {
     } else {
       aui.item.classList.remove('display-none')
     }
-    aui.hpBar.value = actors[i].health
-    aui.hpBar.max = actors[i].maxHealth
+    aui.hpBar.value = actor.health
+    aui.hpBar.max = actor.maxHealth
     // move out to method when the elements are removed
-    aui.name.textContent = actors[i].name
-    // setImage(actorData.get(aui.type)!.tile)
+    aui.name.textContent = actor.name
+    aui.level.textContent = `lvl ${actor.level}`
+
+    if (!actor.isAlive) {
+      setImage(aui.icon, 384)
+    } else if (actor.bd.left) {
+      setImage(aui.icon, 385)
+    } else {
+      setImage(aui.icon, actorData.get(actor.type)!.tile)
+    }
 
     aui.buttons.forEach((btn, j) => {
       const behavior = actorData.get(actor.type)!.behaviors[j]

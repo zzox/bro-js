@@ -8,6 +8,7 @@ type BattleData = {
   x:number
   y:number
   isPlayer:boolean
+  left:boolean
   // spell:Spell
   spellPos?:Vec2
   stats:CompStats
@@ -43,7 +44,7 @@ export class Actor {
 
   newBattle (x:number, y:number, isPlayer:boolean) {
     this.battleData = {
-      x, y, state: ActorState.Wait, stateTime: 10, isPlayer, exp: 0,
+      x, y, state: ActorState.Wait, stateTime: 1, exp: 0, isPlayer, left: false,
       stats: getStatsFromLevel(this.level, actorData.get(this.type)!.stats)
     }
   }

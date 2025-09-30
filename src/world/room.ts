@@ -115,6 +115,7 @@ export class Room {
     if (found != null) {
       this.onEvent({ type: RoomEventType.Leave, from: found })
       this.actors = this.actors.filter(actor => actor !== found)
+      found.bd.left = true
     }
 
     // check actors against elements
