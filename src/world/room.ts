@@ -20,7 +20,7 @@ const genEnemies = ():Actor[] => {
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
 
-// does the actor need help from this spell
+// does the actor need the help this spell would provide
 const needsHelp = (actor:Actor, spell:SpellType) =>
   actor.health / actor.maxHealth < 0.66
 
@@ -143,7 +143,7 @@ export class Room {
 
     actor.health -= data.damage
     element.damaged.push(actor)
-    this.onEvent({ type: RoomEventType.Damage, amount: data.damage, to: actor, from: element.from })
+    this.onEvent({ type: RoomEventType.Damage, amount: data.damage, to: actor, from: element.from, x: element.x, y: element.y })
 
     // if we cannot pass through an enemy, element's time ends here
     if (data.through === false) {

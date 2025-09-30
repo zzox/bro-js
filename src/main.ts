@@ -24,6 +24,7 @@ enum GameState {
 
 type Particle = {
   tile:number
+  number?:number
   time:number
   x:number
   y:number
@@ -32,6 +33,7 @@ type Particle = {
 
 let image:HTMLImageElement
 let floorNum:number = 0
+let questNum:number = 0
 let room:Room
 let gameState:GameState
 let actors:Actor[] = []
@@ -62,6 +64,8 @@ const handleRoomEvent = (event:RoomEvent) => {
   // console.timeEnd('asdf')
   if (event.type === RoomEventType.SpellEnd) {
     particles.push({ tile: spellData.get(event.spell!)!.tile, collTime: 5, time: 30, x: event.x!, y: event.y! })
+  } else if (event.type === RoomEventType.Damage) {
+    particles.push({ tile: -1, number: event.amount, collTime: 5, time: 60, x: event.x!, y: event.y! - 1 })
   }
   createLogFromEvent(event)
 }
@@ -98,7 +102,7 @@ const update = () => {
       if (particle.collTime <= 0) {
         room.actors.forEach(actor => {
           // TODO: get isPosEq
-          if (actor.bd.x === particle.x && actor.bd.x === particle.x) {
+          if (actor.bd.x === particle.x && actor.bd.y === particle.y) {
             particle.time = 0
           }
         })
@@ -135,6 +139,22 @@ const drawTile = (/*image:HTMLImageElement, */ index:number, x:number, y:number,
   ctx.setTransform(1, 0, 0, 1, 0, 0)
 }
 
+enum NumberColor {
+  Red,
+  Gold,
+  Green,
+}
+const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+const drawNumbers = (number:number, color:Number, x:number, y:number) => {
+  // ctx.globalAlpha
+  const numString = (number + '').split('')
+
+  numString.forEach((n, i) => {
+    console.log(0 + numbers.indexOf(n) * 8, 372, 5, 7, x * 14, y + 14, 5, 7)
+    ctx.drawImage(image, 0 + numbers.indexOf(n) * 8, 372, 5, 8, x * 14 + ((3 - numString.length) * 2) + i * 4, y * 14 + 3, 5, 8)
+  })
+}
+
 const draw = () => {
   clear()
   forEachGI(room.grid, (x, y, item) => {
@@ -160,7 +180,11 @@ const draw = () => {
   })
 
   particles.forEach(particle => {
-    drawTile(particle.tile, particle.x, particle.y)
+    if (particle.tile === -1) {
+      drawNumbers(particle.number!, NumberColor.Red, particle.x, particle.y)
+    } else {
+      drawTile(particle.tile, particle.x, particle.y)
+    }
   })
 }
 
