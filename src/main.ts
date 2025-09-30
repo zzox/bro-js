@@ -1,4 +1,4 @@
-import { actorData, ActorType, Behavior } from './data/actor-data'
+import { actorData, ActorType, Behavior, getExpGainFromStats, getLevelFromExp, getStatsFromLevel } from './data/actor-data'
 import { spellData } from './data/spell-data'
 import { createLogFromEvent } from './ui/logs'
 import { setBehaviorButtons, setupPlayerUi, updatePlayerUi } from './ui/player-ui'
@@ -140,18 +140,17 @@ const drawTile = (/*image:HTMLImageElement, */ index:number, x:number, y:number,
 }
 
 enum NumberColor {
-  Red,
-  Gold,
-  Green,
+  Red = 0,
+  Gold = 1,
+  Green = 2,
 }
 const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-const drawNumbers = (number:number, color:Number, x:number, y:number) => {
+const drawNumbers = (number:number, color:NumberColor, x:number, y:number) => {
   // ctx.globalAlpha
   const numString = (number + '').split('')
 
   numString.forEach((n, i) => {
-    console.log(0 + numbers.indexOf(n) * 8, 372, 5, 7, x * 14, y + 14, 5, 7)
-    ctx.drawImage(image, 0 + numbers.indexOf(n) * 8, 372, 5, 8, x * 14 + ((3 - numString.length) * 2) + i * 4, y * 14 + 3, 5, 8)
+    ctx.drawImage(image, 0 + numbers.indexOf(n) * 8, 348 + color * 12, 5, 8, x * 14 + ((3 - numString.length) * 2) + i * 4, y * 14 + 3, 5, 8)
   })
 }
 
@@ -181,7 +180,7 @@ const draw = () => {
 
   particles.forEach(particle => {
     if (particle.tile === -1) {
-      drawNumbers(particle.number!, NumberColor.Red, particle.x, particle.y)
+      drawNumbers(Math.abs(particle.number!), particle.number! > 0 ? NumberColor.Red : NumberColor.Green, particle.x, particle.y)
     } else {
       drawTile(particle.tile, particle.x, particle.y)
     }
@@ -209,6 +208,19 @@ const ready = () => {
 const run = async () => {
   image = new Image()
   image.src = './assets/tiles.png'
+
+  console.log(getStatsFromLevel(getLevelFromExp(1000), actorData.get(ActorType.Knight)!.stats))
+  console.log(getLevelFromExp(100))
+  console.log(getLevelFromExp(1000))
+  console.log(getLevelFromExp(10000))
+  console.log(getLevelFromExp(100000))
+  console.log(getLevelFromExp(1000000))
+
+  console.log(getExpGainFromStats(getStatsFromLevel(1, actorData.get(ActorType.Goblin)!.stats)))
+  console.log(getExpGainFromStats(getStatsFromLevel(3, actorData.get(ActorType.Goblin)!.stats)))
+  console.log(getExpGainFromStats(getStatsFromLevel(10, actorData.get(ActorType.Goblin)!.stats)))
+  console.log(getExpGainFromStats(getStatsFromLevel(20, actorData.get(ActorType.Goblin)!.stats)))
+  console.log(getExpGainFromStats(getStatsFromLevel(100, actorData.get(ActorType.Goblin)!.stats)))
 
   // const grid = makeGrid(11, 11)
 

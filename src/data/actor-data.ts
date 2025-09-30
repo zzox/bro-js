@@ -28,11 +28,11 @@ const low04 = [1, 1, 2, 3, 3]
 const low05 = [2, 3, 3, 7]
 
 enum StatType {
-  MaxHealth,
-  Speed,
-  Power,
-  Int,
-  Dex,
+  MaxHealth = 'MaxHealth',
+  Speed = 'Speed',
+  Power = 'Power',
+  Int = 'Int',
+  Dex = 'Dex',
 }
 
 // type Stat = [StatType, ExpSpeed]
@@ -42,6 +42,14 @@ type Stats = {
   [StatType.Power]: ExpSpeed
   [StatType.Int]: ExpSpeed
   [StatType.Dex]: ExpSpeed
+}
+
+type CompStats = {
+  [StatType.MaxHealth]: number
+  [StatType.Speed]: number
+  [StatType.Power]: number
+  [StatType.Int]: number
+  [StatType.Dex]: number
 }
 
 // TODO: split up actor type
@@ -105,6 +113,27 @@ const playerActors = [ActorType.Knight, ActorType.Archer, ActorType.Mage]
 export const isPlayerActor = (actorType:ActorType) =>
   playerActors.includes(actorType)
 
-export const getLevelFromExperience = (exp:number) => {
+export const getLevelFromExp = (exp:number) =>
   Math.floor(Math.pow(exp, 1/3))
+
+export const getStatsFromLevel = (level:number, stats:Stats):CompStats => {
+  const comp:CompStats = {
+    [StatType.MaxHealth]: 0,
+    [StatType.Speed]: 0,
+    [StatType.Power]: 0,
+    [StatType.Int]: 0,
+    [StatType.Dex]: 0,
+  }
+
+  while (--level > 0) {
+    for (let key in comp) {
+      // @ts-ignore
+      comp[key] += stats[key][level % stats[key].length]
+    }
+  }
+
+  return comp
 }
+
+export const getExpGainFromStats = (stats:CompStats) =>
+  stats[StatType.MaxHealth] + stats[StatType.Speed] + stats[StatType.Power] + stats[StatType.Int] + stats[StatType.Dex]

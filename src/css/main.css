@@ -38,6 +38,8 @@ p {
   margin: 0.2rem;
   font-size: 1rem;
   font-weight: 700;
+  /* why is this needed here? */
+  font-family: monospace;
 }
 
 button {
