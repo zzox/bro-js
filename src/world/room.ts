@@ -130,7 +130,7 @@ export class Room {
           const exp = Math.floor(getExpGainFromStats(a.bd.stats) / a.bd.damagedBy.length)
           a.bd.damagedBy.forEach(adb => {
             // alert when the player gets some experience
-            if (adb.bd.isPlayer) {
+            if (adb.bd.isPlayer && adb.isAlive) {
               this.onEvent({ type: RoomEventType.Exp, amount: exp, from: adb })
             }
             adb.experience += exp
@@ -218,55 +218,74 @@ export class Room {
     const opponents = actor.bd.isPlayer ? this.getEnemies() : this.getPlayers()
     const teammmates = actor.bd.isPlayer ? this.getPlayers() : this.getEnemies()
 
-    // if no opponents, we don't do anything
+    // if we're an enemy and there's no opponents, we don't do anything
     if (!opponents.length && !actor.bd.isPlayer) return
 
     // if we arent waiting, we should return
     if (actor.bd.state !== ActorState.Wait) return
 
+    let didChosen = false
     if (actor.behavior === Behavior.Aggro) {
-      const nearest = findNearest(actor.bd.x, actor.bd.y, opponents)
-      if (!nearest) {
-        // leave if there's noone
-        this.tryMoveActor(actor, this.exit.x, this.exit.y)
-        return
-      }
-
-      const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
-
-      // sqrt(2) is under 1.5
-
-      if (nearestDist <= getActorSpellData(actor).range) {
-        this.trySpell(actor, nearest.bd.x, nearest.bd.y)
-      } else {
-        this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
-      }
+      didChosen = this.tryAggro(actor, opponents)
     } else if (actor.behavior === Behavior.Help) {
-      const helpTeammates = teammmates.filter(t => needsHelp(t, getActorSpell(actor)))
-      if (helpTeammates.length === 0 && opponents.length === 0) {
-        // exit if there's noone to help or heal
-        this.tryMoveActor(actor, this.exit.x, this.exit.y)
-        return
-      }
-
-      const nearest = findNearest(actor.bd.x, actor.bd.y, helpTeammates)
-      if (!nearest) {
-        // TODO: attack if we cant heal?
-        console.log('No one to heal')
-        return
-      }
-
-      const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
-
-      // sqrt(2) is under 1.5
-      if (nearestDist <= getActorSpellData(actor).range) {
-        this.trySpell(actor, nearest.bd.x, nearest.bd.y)
-      } else {
-        this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
-      }
+      didChosen = this.tryHelp(actor, teammmates)
     } else if (actor.behavior === Behavior.Evade) {
-      this.tryMoveActor(actor, this.exit.x, this.exit.y)
+      didChosen = this.tryEvade(actor)
     }
+
+    if (!didChosen) {
+      throw 'Could not choose an action'
+    }
+  }
+
+  tryAggro = (actor:Actor, opponents:Actor[]):boolean => {
+    const nearest = findNearest(actor.bd.x, actor.bd.y, opponents)
+    if (!nearest) {
+      // leave if there's noone
+      this.tryMoveActor(actor, this.exit.x, this.exit.y)
+      return true
+    }
+
+    const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
+
+    // sqrt(2) is under 1.5
+    if (nearestDist <= getActorSpellData(actor).range) {
+      this.trySpell(actor, nearest.bd.x, nearest.bd.y)
+    } else {
+      this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
+    }
+    return true
+  }
+
+  tryHelp = (actor:Actor, teammmates:Actor[]):boolean => {
+    const helpTeammates = teammmates.filter(t => needsHelp(t, getActorSpell(actor)))
+    if (helpTeammates.length === 0/* && opponents.length === 0 */) {
+      // exit if there's noone to help or heal
+      this.tryMoveActor(actor, this.exit.x, this.exit.y)
+      return true
+    }
+
+    const nearest = findNearest(actor.bd.x, actor.bd.y, helpTeammates)
+    if (!nearest) {
+      // TODO: attack if we cant heal?
+      console.log('No one to heal')
+      return true
+    }
+
+    const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
+
+    // sqrt(2) is under 1.5
+    if (nearestDist <= getActorSpellData(actor).range) {
+      this.trySpell(actor, nearest.bd.x, nearest.bd.y)
+    } else {
+      this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
+    }
+    return true
+  }
+
+  tryEvade = (actor:Actor):boolean => {
+    this.tryMoveActor(actor, this.exit.x, this.exit.y)
+    return true
   }
 
   addElement (actor:Actor, spell:SpellType) {
@@ -328,7 +347,8 @@ export class Room {
     actor.bd.x = items[0].x
     actor.bd.y = items[0].y
 
-    const time = Math.floor((256 - actor.bd.stats.Speed) / 10)
+    // const time = Math.floor((256 - actor.bd.stats.Speed) / 10)
+    const time = Math.floor(348 / actor.bd.stats.Speed)
     actor.bd.stateTime = isDiagonal ? time * Math.SQRT2 : time
   }
 
