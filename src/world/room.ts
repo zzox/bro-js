@@ -201,6 +201,9 @@ export class Room {
     const opponents = actor.bd.isPlayer ? this.getEnemies() : this.getPlayers()
     const teammmates = actor.bd.isPlayer ? this.getPlayers() : this.getEnemies()
 
+    // if no opponents, we don't do anything
+    if (!opponents.length && !actor.bd.isPlayer) return
+
     // if we arent waiting, we should return
     if (actor.bd.state !== ActorState.Wait) return
 

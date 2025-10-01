@@ -86,30 +86,35 @@ const handleBattleStart = () => {
   }
 }
 
+const updateParticles = () => {
+  particles.forEach(particle => {
+    particle.time--
+    particle.collTime--
+
+    // if collision time is less than zero and there is a collision
+    if (particle.collTime <= 0) {
+      room.actors.forEach(actor => {
+        // TODO: get isPosEq
+        if (actor.bd.x === particle.x && actor.bd.y === particle.y) {
+          particle.time = 0
+        }
+      })
+    }
+  })
+
+  particles = particles.filter(p => p.time > 0)
+}
+
 const update = () => {
-  // Room.update()
   if (gameState === GameState.InRoom) {
     const result = room.update()
     if (result) {
       handleRoomResult(result)
     }
-
-    particles.forEach(particle => {
-      particle.time--
-      particle.collTime--
-
-      // if collision time is less than zero and there is a collision
-      if (particle.collTime <= 0) {
-        room.actors.forEach(actor => {
-          // TODO: get isPosEq
-          if (actor.bd.x === particle.x && actor.bd.y === particle.y) {
-            particle.time = 0
-          }
-        })
-      }
-    })
-
-    particles = particles.filter(p => p.time > 0)
+    updateParticles()
+  } else if (gameState === GameState.InRoomAfter) {
+    room.update()
+    updateParticles()
   }
 }
 
