@@ -1,6 +1,7 @@
 import { actorData, ActorType, Behavior, CompStats, getStatsFromLevel, isPlayerActor } from '../data/actor-data'
 import { Vec2 } from '../data/globals'
 import { names } from '../data/names'
+import { SpellType } from '../data/spell-data'
 
 type BattleData = {
   state:ActorState
@@ -9,7 +10,7 @@ type BattleData = {
   y:number
   isPlayer:boolean
   left:boolean
-  // spell:Spell
+  spell?:SpellType
   spellPos?:Vec2
   damagedBy:Actor[]
   stats:CompStats
@@ -43,9 +44,9 @@ export class Actor {
 
     const stats = getStatsFromLevel(this.level, actorData.get(this.type)!.stats)
 
-    this.health = stats.MaxHealth
-    this.maxHealth = stats.MaxHealth
-    this.maxMana = stats.MaxMana
+    this.maxHealth = actorData.get(type)!.baseHealth + stats.MaxHealth
+    this.health = this.maxHealth
+    this.maxMana = actorData.get(type)!.baseMana + stats.MaxMana
   }
 
   newBattle (x:number, y:number, isPlayer:boolean) {

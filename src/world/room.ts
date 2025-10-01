@@ -224,17 +224,26 @@ export class Room {
     // if we arent waiting, we should return
     if (actor.bd.state !== ActorState.Wait) return
 
-    let didChosen = false
-    if (actor.behavior === Behavior.Aggro) {
-      didChosen = this.tryAggro(actor, opponents)
+    let didSelected = false
+    // leave if we have no opponents
+    if (actor.behavior === Behavior.Evade || opponents.length === 0) {
+      didSelected = this.tryEvade(actor)
+    } else if (actor.behavior === Behavior.Aggro) {
+      didSelected = this.tryAggro(actor, opponents)
     } else if (actor.behavior === Behavior.Help) {
-      didChosen = this.tryHelp(actor, teammmates)
-    } else if (actor.behavior === Behavior.Evade) {
-      didChosen = this.tryEvade(actor)
+      didSelected = this.tryHelp(actor, teammmates)
     }
 
-    if (!didChosen) {
-      throw 'Could not choose an action'
+    if (!didSelected) {
+      if (actor.behavior === Behavior.Help) {
+        // if (teammmates.length > 1) {
+        //   console.log('special case, trying to evade')
+        //   this.tryEvade(actor)
+        // } else {
+          console.log('special case, trying to attack')
+          this.tryAggro(actor, opponents)
+        // }
+      }
     }
   }
 
@@ -246,7 +255,7 @@ export class Room {
       return true
     }
 
-    const spell = getActorSpellData(actor)
+    const spell = getActorSpellData(actor, Behavior.Aggro)
     if (actor.bd.mana - spell.mana < 0) {
       return false
     }
@@ -255,7 +264,7 @@ export class Room {
 
     // sqrt(2) is under 1.5
     if (nearestDist <= spell.range) {
-      this.trySpell(actor, nearest.bd.x, nearest.bd.y)
+      this.trySpell(actor, getActorSpell(actor, Behavior.Aggro), nearest.bd.x, nearest.bd.y)
     } else {
       this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
     }
@@ -263,30 +272,32 @@ export class Room {
   }
 
   tryHelp = (actor:Actor, teammmates:Actor[]):boolean => {
-    const helpTeammates = teammmates.filter(t => needsHelp(t, getActorSpell(actor)))
-    if (helpTeammates.length === 0/* && opponents.length === 0 */) {
-      // exit if there's noone to help or heal
-      this.tryMoveActor(actor, this.exit.x, this.exit.y)
-      return true
-    }
+    const spell = getActorSpell(actor, Behavior.Help)
+    const helpTeammates = teammmates.filter(t => needsHelp(t, spell))
+    // TEMP: for now, do nothing (wait) if we have noone to heal
+    // if (helpTeammates.length === 0/* && opponents.length === 0 */) {
+    //   // exit if there's noone to help or heal
+    //   this.tryMoveActor(actor, this.exit.x, this.exit.y)
+    //   return true
+    // }
 
     const nearest = findNearest(actor.bd.x, actor.bd.y, helpTeammates)
     if (!nearest) {
       // TODO: attack if we cant heal?
-      console.log('No one to heal')
+      console.log('No one to heal, doing nothing')
       return true
     }
 
-    const spell = getActorSpellData(actor)
-    if (actor.bd.mana - spell.mana < 0) {
+    const spellData = getActorSpellData(actor, Behavior.Help)
+    if (actor.bd.mana - spellData.mana < 0) {
       return false
     }
 
     const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
 
     // sqrt(2) is under 1.5
-    if (nearestDist <= getActorSpellData(actor).range) {
-      this.trySpell(actor, nearest.bd.x, nearest.bd.y)
+    if (nearestDist <= spellData.range) {
+      this.trySpell(actor, spell, nearest.bd.x, nearest.bd.y)
     } else {
       this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
     }
@@ -325,16 +336,17 @@ export class Room {
     })
   }
 
-  trySpell (actor:Actor, x:number, y:number) {
+  trySpell (actor:Actor, spell:SpellType, x:number, y:number) {
     actor.bd.spellPos = vec2(x, y)
     actor.bd.state = ActorState.PreSpell
+    actor.bd.spell = spell
     actor.bd.stateTime = 30 // lookup from spell
   }
 
   doSpell (actor:Actor) {
     if (!actor.bd.spellPos) throw 'No Spell Pos!'
-    const spell = getActorSpell(actor)
     // console.log('actor spell', spell, spell === SpellType.Heal)
+    const spell = actor.bd.spell!
     this.addElement(actor, spell)
     this.onEvent({ type: RoomEventType.Spell, spell, from: actor, x: actor.bd.spellPos.x, y: actor.bd.spellPos.y })
     actor.bd.spellPos = undefined

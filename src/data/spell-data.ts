@@ -30,11 +30,11 @@ spellData.set(SpellType.Arrow, { time: 10, range: 5, mana: 0, damage: 5, tile: 2
 spellData.set(SpellType.Fire, { time: 10, range: MAXDIST, mana: 0, damage: 10, tile: 259, through: true })
 spellData.set(SpellType.Heal, { time: 1, range: FSQRT2, mana: 5, damage: -20, tile: 261 })
 
-export const getActorSpellData = (actor:Actor):SpellData =>
-  spellData.get(getActorSpell(actor))!
+export const getActorSpellData = (actor:Actor, behavior:Behavior):SpellData =>
+  spellData.get(getActorSpell(actor, behavior))!
 
 // just aggro and help for now
-export const getActorSpell = (actor:Actor):SpellType =>
-  actor.behavior === Behavior.Aggro ? actorData.get(actor.type)!.aggroSpell : actorData.get(actor.type)!.helpSpell!
+export const getActorSpell = (actor:Actor, behavior:Behavior):SpellType =>
+  behavior === Behavior.Aggro ? actorData.get(actor.type)!.aggroSpell : actorData.get(actor.type)!.helpSpell!
 
 export const isMagic = (type:SpellType) => spellData.get(type)!.mana > 0

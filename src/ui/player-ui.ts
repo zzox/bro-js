@@ -82,8 +82,6 @@ export const updatePlayerUi = (actors:Actor[]) => {
       aui.mpBar.max = actor.maxMana
     }
 
-    console.log(actor.bd?.mana, actor.maxMana)
-
     // move out to method when the elements are removed
     aui.name.textContent = actor.name
     aui.level.textContent = `lvl ${actor.level}`
