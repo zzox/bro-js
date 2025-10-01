@@ -1,4 +1,4 @@
-import { actorData, ActorType, Behavior, getExpGainFromStats } from '../data/actor-data'
+import { ActorType, Behavior, getExpGainFromStats } from '../data/actor-data'
 import { vec2, Vec2 } from '../data/globals'
 import { getActorSpell, getActorSpellData, spellData, SpellType, FSQRT2, isMagic } from '../data/spell-data'
 import { logger } from '../util/logger'
@@ -60,13 +60,21 @@ export type RElement = {
 }
 
 export class Room {
-  grid:Grid<TileItem>
-
-  state:RoomState = RoomState.PreBattle
-
+  grid!:Grid<TileItem>
   actors:Actor[] = []
-
   elements:RElement[] = []
+
+  constructor () {
+
+  }
+
+  update ():RoomResult | null {
+    throw 'Room:update() not implemented'
+  }
+}
+
+export class BattleRoom extends Room {
+  state:RoomState = RoomState.PreBattle
 
   exit:Vec2 = vec2(9, 1)
   entrance:Vec2 = vec2(2, 8)
@@ -74,6 +82,7 @@ export class Room {
   onEvent:(e:RoomEvent) => void
 
   constructor (playerTeam:Actor[], onEvent:(e:RoomEvent) => void) {
+    super()
     const enemies = genEnemies()
 
     this.grid = mapGI(makeGrid(11, 11), (x, y, item) => {
@@ -317,6 +326,7 @@ export class Room {
 
     // first is actually second, because we get rid of the first
     if (ranged) {
+      // try: ranged = path.shift()
       const zeroth = path.shift()
       // console.log(zeroth!.x === actor.bd.x && zeroth!.y === actor.bd.y)
     }

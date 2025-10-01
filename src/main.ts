@@ -5,9 +5,10 @@ import { setBehaviorButtons, setupPlayerUi, updatePlayerUi } from './ui/player-u
 import { logger, LogLevel, setLogLevel } from './util/logger'
 import { Actor } from './world/actor'
 import { forEachGI, TileType } from './world/grid'
-import { Room, RoomEvent, RoomEventType, RoomResult, RoomState } from './world/room'
+import { Room, BattleRoom, RoomEvent, RoomEventType, RoomResult, RoomState } from './world/room'
 import { ctx } from './ui/canvas'
 import { setBattleUi, setupBattleUi } from './ui/room-ui'
+import { PostRoom, PostRoomEvent } from './world/post-room'
 
 setLogLevel(LogLevel.Info)
 logger.debug('bro :)')
@@ -51,9 +52,9 @@ const handleRoomResult = (result:RoomResult) => {
   logger.debug('room result', result)
   gameState = GameState.InRoomAfter
   console.log(actors.map(a => a.bd.exp))
-  actors = actors.filter(a => a.isAlive)
+  // actors = actors.filter(a => a.isAlive)
   setTimeout(() => {
-    newRoom()
+    newPostRoom()
   }, 3000)
 }
 
@@ -61,7 +62,15 @@ const newRoom = () => {
   setBattleUi(true)
   setBehaviorButtons(true)
   gameState = GameState.InRoomPre
-  room = new Room(actors, handleRoomEvent)
+  room = new BattleRoom(actors, handleRoomEvent)
+  updatePlayerUi(actors)
+}
+
+const newPostRoom = () => {
+  setBehaviorButtons(true)
+  gameState = GameState.InRoomPre
+
+  room = new PostRoom(actors, handlePostRoomEvent)
   updatePlayerUi(actors)
 }
 
@@ -78,6 +87,10 @@ const handleRoomEvent = (event:RoomEvent) => {
     particles.push({ tile: -1, color: NumberColor.Gold, number: event.amount, collTime: 5, time: 60, x: event.from!.bd.x!, y: event.from!.bd.y! - 1 })
   }
   createLogFromEvent(event)
+}
+
+const handlePostRoomEvent = (event:PostRoomEvent) => {
+
 }
 
 const handlePlayerBehavior = (actorNum:number, behaviorNum:number) => {
@@ -178,11 +191,7 @@ const draw = () => {
   })
 
   room.actors.forEach(actor => {
-    if (actor.type === ActorType.Goblin) {
-      drawTile(actorData.get(actor.type)!.tile, actor.bd.x, actor.bd.y)
-    } else {
-      drawTile(actorData.get(actor.type)!.tile, actor.bd.x, actor.bd.y)
-    }
+    drawTile(actor.isAlive ? actorData.get(actor.type)!.tile : 384, actor.bd.x, actor.bd.y)
   })
 
   room.elements.forEach(element => {

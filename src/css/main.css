@@ -123,7 +123,8 @@ button:disabled {
   width: 24px; height: 24px;
   image-rendering: pixelated;
   /* blank tile for now */
-  background-position: 24px 0px;
+  /* NOTE: it wraps */
+  background-position: -24px 0px;
 }
 
 .char {
