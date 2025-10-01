@@ -1,4 +1,4 @@
-import { actorData, ActorType, Behavior, getExpGainFromStats, getStatsFromLevel } from '../data/actor-data'
+import { actorData, ActorType, Behavior, getExpGainFromStats } from '../data/actor-data'
 import { vec2, Vec2 } from '../data/globals'
 import { getActorSpell, getActorSpellData, spellData, SpellType, FSQRT2, isMagic } from '../data/spell-data'
 import { logger } from '../util/logger'
@@ -241,15 +241,20 @@ export class Room {
   tryAggro = (actor:Actor, opponents:Actor[]):boolean => {
     const nearest = findNearest(actor.bd.x, actor.bd.y, opponents)
     if (!nearest) {
-      // leave if there's noone
+      // leave if there's noone to fight
       this.tryMoveActor(actor, this.exit.x, this.exit.y)
       return true
+    }
+
+    const spell = getActorSpellData(actor)
+    if (actor.bd.mana - spell.mana < 0) {
+      return false
     }
 
     const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
 
     // sqrt(2) is under 1.5
-    if (nearestDist <= getActorSpellData(actor).range) {
+    if (nearestDist <= spell.range) {
       this.trySpell(actor, nearest.bd.x, nearest.bd.y)
     } else {
       this.tryMoveActor(actor, nearest.bd.x, nearest.bd.y)
@@ -270,6 +275,11 @@ export class Room {
       // TODO: attack if we cant heal?
       console.log('No one to heal')
       return true
+    }
+
+    const spell = getActorSpellData(actor)
+    if (actor.bd.mana - spell.mana < 0) {
+      return false
     }
 
     const nearestDist = distanceBetween(actor.bd.x, actor.bd.y, nearest.bd.x, nearest.bd.y)
@@ -328,6 +338,7 @@ export class Room {
     this.addElement(actor, spell)
     this.onEvent({ type: RoomEventType.Spell, spell, from: actor, x: actor.bd.spellPos.x, y: actor.bd.spellPos.y })
     actor.bd.spellPos = undefined
+    actor.bd.mana -= spellData.get(spell)!.mana
     actor.bd.state = ActorState.Spell
     actor.bd.stateTime = 60 // lookup from spell, add dexterity
   }

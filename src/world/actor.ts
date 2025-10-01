@@ -13,6 +13,7 @@ type BattleData = {
   spellPos?:Vec2
   damagedBy:Actor[]
   stats:CompStats
+  mana:number
   exp:number
 }
 
@@ -29,23 +30,28 @@ export class Actor {
 
   health:number
   maxHealth:number
+  maxMana:number
   level:number = 10
   experience:number = 1000
 
   battleData!:BattleData
 
   constructor (type:ActorType) {
-    this.health = 100
-    this.maxHealth = 100
-
     // this.battleData = {}
     this.name = isPlayerActor(type) ? names[Math.floor(Math.random() * names.length)] : `A ${type}`
     this.type = type
+
+    const stats = getStatsFromLevel(this.level, actorData.get(this.type)!.stats)
+
+    this.health = stats.MaxHealth
+    this.maxHealth = stats.MaxHealth
+    this.maxMana = stats.MaxMana
   }
 
   newBattle (x:number, y:number, isPlayer:boolean) {
     this.battleData = {
       x, y, state: ActorState.Wait, stateTime: 1, exp: 0, isPlayer, left: false, damagedBy: [],
+      mana: this.maxMana,
       stats: getStatsFromLevel(this.level, actorData.get(this.type)!.stats)
     }
   }

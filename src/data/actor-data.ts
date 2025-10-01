@@ -15,20 +15,26 @@ export enum Behavior {
 }
 
 type ExpInc = number[]
+// names are based on their averages
 const zero = [0]
-const low01 = [0, 1]
-const low02 = [0, 1, 1]
+const low05 = [0, 1]
+const low06 = [0, 1, 1] // 0.66
 const low10 = [0, 1, 1, 2]
-const low12 = [1, 2]
+const low15 = [1, 2]
+const mid15 = [0, 1, 2, 3]
 const low20 = [1, 2, 2, 3]
-const low03 = [0, 1, 2, 3]
-const low035 = [0, 1, 2, 3, 5]
-const low35 = [1, 2, 3, 5]
-const low04 = [1, 1, 2, 3, 3]
-const low05 = [2, 3, 3, 7]
+const mid20 = [1, 1, 2, 3, 3]
+const low22 = [0, 1, 2, 3, 5]
+const low27 = [1, 2, 3, 5]
+const low37 = [2, 3, 3, 7]
+
+const low50 = [4, 5, 6]
+const low60 = [5, 6, 7]
+const low70 = [6, 6, 7, 8, 8]
 
 enum StatType {
   MaxHealth = 'MaxHealth',
+  MaxMana = 'MaxMana',
   Speed = 'Speed',
   Power = 'Power',
   Int = 'Int',
@@ -38,6 +44,7 @@ enum StatType {
 // type Stat = [StatType, ExpInc]
 type Stats = {
   [StatType.MaxHealth]: ExpInc
+  [StatType.MaxMana]: ExpInc
   [StatType.Speed]: ExpInc
   [StatType.Power]: ExpInc
   [StatType.Int]: ExpInc
@@ -46,6 +53,7 @@ type Stats = {
 
 export type CompStats = {
   [StatType.MaxHealth]: number
+  [StatType.MaxMana]: number
   [StatType.Speed]: number
   [StatType.Power]: number
   [StatType.Int]: number
@@ -59,6 +67,7 @@ export type ActorData = {
   helpSpell?:SpellType
   behaviors:Behavior[]
   baseHealth:number
+  baseMana:number
   stats:Stats
 }
 
@@ -67,21 +76,25 @@ export const actorData:Map<ActorType, ActorData> = new Map()
 actorData.set(ActorType.Knight, { tile: 0, aggroSpell: SpellType.Slice,
   behaviors: [Behavior.Aggro],
   baseHealth: 100,
+  baseMana: 0,
   stats: {
-    [StatType.MaxHealth]: low05,
-    [StatType.Speed]: low12,
-    [StatType.Power]: low35,
-    [StatType.Int]: low01,
-    [StatType.Dex]: low01,
+    [StatType.MaxHealth]: low37,
+    [StatType.MaxMana]: zero,
+    [StatType.Speed]: low15,
+    [StatType.Power]: low27,
+    [StatType.Int]: zero,
+    [StatType.Dex]: zero,
   }
 })
 actorData.set(ActorType.Archer, { tile: 1, aggroSpell: SpellType.Arrow, helpSpell: SpellType.Heal,
   behaviors: [Behavior.Aggro, Behavior.Help, Behavior.Evade],
   baseHealth: 75,
+  baseMana: 20,
   stats: {
-    [StatType.MaxHealth]: low04,
-    [StatType.Speed]: low04,
-    [StatType.Power]: low12,
+    [StatType.MaxHealth]: mid20,
+    [StatType.MaxMana]: low10,
+    [StatType.Speed]: mid20,
+    [StatType.Power]: low15,
     [StatType.Int]: low20,
     [StatType.Dex]: low10
   }
@@ -89,23 +102,27 @@ actorData.set(ActorType.Archer, { tile: 1, aggroSpell: SpellType.Arrow, helpSpel
 actorData.set(ActorType.Mage, { tile: 2, aggroSpell: SpellType.Stab, helpSpell: SpellType.Heal,
   behaviors: [Behavior.Aggro, Behavior.Help, Behavior.Evade],
   baseHealth: 50,
+  baseMana: 30,
   stats: {
-    [StatType.MaxHealth]: low02,
+    [StatType.MaxHealth]: low15,
+    [StatType.MaxMana]: low37,
     [StatType.Speed]: low10,
-    [StatType.Power]: low01,
-    [StatType.Int]: low35,
-    [StatType.Dex]: low35
+    [StatType.Power]: low05,
+    [StatType.Int]: low27,
+    [StatType.Dex]: low27
   }
 })
 actorData.set(ActorType.Goblin, { tile: 32, aggroSpell: SpellType.Fire,
   behaviors: [Behavior.Aggro],
   baseHealth: 50,
+  baseMana: 0,
   stats: {
-    [StatType.MaxHealth]: low20,
-    [StatType.Speed]: low35,
-    [StatType.Power]: low12,
+    [StatType.MaxHealth]: low50,
+    [StatType.MaxMana]: zero,
+    [StatType.Speed]: low27,
+    [StatType.Power]: low15,
     [StatType.Int]: low10,
-    [StatType.Dex]: low12
+    [StatType.Dex]: low15
   }
 })
 
@@ -119,6 +136,7 @@ export const getLevelFromExp = (exp:number) =>
 export const getStatsFromLevel = (level:number, stats:Stats):CompStats => {
   const comp:CompStats = {
     [StatType.MaxHealth]: 0,
+    [StatType.MaxMana]: 0,
     [StatType.Speed]: 0,
     [StatType.Power]: 0,
     [StatType.Int]: 0,

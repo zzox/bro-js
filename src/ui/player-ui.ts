@@ -11,7 +11,8 @@ type PlayerUi = {
   level:HTMLParagraphElement
   icon:HTMLDivElement
   hpBar:HTMLProgressElement
-  stepBar:HTMLProgressElement
+  mpBar:HTMLProgressElement
+  // stepBar:HTMLProgressElement
   buttons:HTMLButtonElement[]
 }
 
@@ -40,6 +41,7 @@ export const setupPlayerUi = (buttonCallback:BehaviorCallback) => {
       level: item.querySelector('.char-level')!,
       icon: item.querySelector('.ssimg')!,
       hpBar: item.querySelector('.hp-bar')!,
+      mpBar: item.querySelector('.mp-bar')!,
       stepBar: item.querySelector('.step-bar')!,
       buttons
     }
@@ -71,6 +73,17 @@ export const updatePlayerUi = (actors:Actor[]) => {
     }
     aui.hpBar.value = actor.health
     aui.hpBar.max = actor.maxHealth
+
+    if (actor.maxMana === 0) {
+      aui.mpBar.value = 1
+      aui.mpBar.max = 1
+    } else {
+      aui.mpBar.value = actor.bd?.mana || actor.maxMana
+      aui.mpBar.max = actor.maxMana
+    }
+
+    console.log(actor.bd?.mana, actor.maxMana)
+
     // move out to method when the elements are removed
     aui.name.textContent = actor.name
     aui.level.textContent = `lvl ${actor.level}`

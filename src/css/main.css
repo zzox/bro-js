@@ -223,5 +223,5 @@ progress::-moz-progress-bar {
   }
   #chars { order: 2; }
   #battle { order: 1; }
-  #logs { order: 2; }
+  #logs { order: 2; height: 50vh }
 }

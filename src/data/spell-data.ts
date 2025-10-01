@@ -37,6 +37,4 @@ export const getActorSpellData = (actor:Actor):SpellData =>
 export const getActorSpell = (actor:Actor):SpellType =>
   actor.behavior === Behavior.Aggro ? actorData.get(actor.type)!.aggroSpell : actorData.get(actor.type)!.helpSpell!
 
-// export const isMagic = (type:SpellType) => spellData.get(type).mana > 0
-// TEMP:
-export const isMagic = (type:SpellType) => spellData.get(type)!.range === MAXDIST
+export const isMagic = (type:SpellType) => spellData.get(type)!.mana > 0
