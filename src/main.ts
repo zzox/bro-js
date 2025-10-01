@@ -22,6 +22,12 @@ enum GameState {
   PostRoom
 }
 
+enum NumberColor {
+  Red = 0,
+  Green = 1,
+  Gold = 2,
+}
+
 type Particle = {
   tile:number
   number?:number
@@ -29,6 +35,7 @@ type Particle = {
   x:number
   y:number
   collTime:number
+  color?:NumberColor
 }
 
 let image:HTMLImageElement
@@ -43,6 +50,7 @@ let fastForward = false
 const handleRoomResult = (result:RoomResult) => {
   logger.debug('room result', result)
   gameState = GameState.InRoomAfter
+  console.log(actors.map(a => a.bd.exp))
   actors = actors.filter(a => a.isAlive)
   setTimeout(() => {
     newRoom()
@@ -65,7 +73,9 @@ const handleRoomEvent = (event:RoomEvent) => {
   if (event.type === RoomEventType.SpellEnd) {
     particles.push({ tile: spellData.get(event.spell!)!.tile, collTime: 5, time: 30, x: event.x!, y: event.y! })
   } else if (event.type === RoomEventType.Damage) {
-    particles.push({ tile: -1, number: event.amount, collTime: 5, time: 60, x: event.x!, y: event.y! - 1 })
+    particles.push({ tile: -1, color: event.amount! > 0 ? NumberColor.Red : NumberColor.Green, number: event.amount, collTime: 5, time: 60, x: event.x!, y: event.y! - 1 })
+  } else if (event.type === RoomEventType.Exp) {
+    particles.push({ tile: -1, color: NumberColor.Gold, number: event.amount, collTime: 5, time: 60, x: event.from!.bd.x!, y: event.from!.bd.y! - 1 })
   }
   createLogFromEvent(event)
 }
@@ -144,13 +154,9 @@ const drawTile = (/*image:HTMLImageElement, */ index:number, x:number, y:number,
   ctx.setTransform(1, 0, 0, 1, 0, 0)
 }
 
-enum NumberColor {
-  Red = 0,
-  Green = 1,
-  Gold = 2,
-}
 const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 const drawNumbers = (number:number, color:NumberColor, x:number, y:number) => {
+  clearTile(x, y)
   // ctx.globalAlpha
   const numString = (number + '').split('')
 
@@ -185,7 +191,7 @@ const draw = () => {
 
   particles.forEach(particle => {
     if (particle.tile === -1) {
-      drawNumbers(Math.abs(particle.number!), particle.number! > 0 ? NumberColor.Red : NumberColor.Green, particle.x, particle.y)
+      drawNumbers(Math.abs(particle.number!), particle.color!, particle.x, particle.y)
     } else {
       drawTile(particle.tile, particle.x, particle.y)
     }

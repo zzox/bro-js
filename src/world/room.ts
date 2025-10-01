@@ -1,4 +1,4 @@
-import { actorData, ActorType, Behavior } from '../data/actor-data'
+import { actorData, ActorType, Behavior, getExpGainFromStats, getStatsFromLevel } from '../data/actor-data'
 import { vec2, Vec2 } from '../data/globals'
 import { getActorSpell, getActorSpellData, spellData, SpellType, FSQRT2, isMagic } from '../data/spell-data'
 import { logger } from '../util/logger'
@@ -36,6 +36,7 @@ export enum RoomEventType {
   Spell = 'Spell',
   SpellEnd = 'SpellEnd',
   Leave = 'Leave',
+  Exp = 'Exp',
 }
 
 export type RoomEvent = {
@@ -122,7 +123,21 @@ export class Room {
     this.elements.forEach(this.updateElement)
     this.elements = this.elements.filter(el => el.time > 0)
 
-    this.actors.forEach(a => !a.isAlive && this.onEvent({ type: RoomEventType.Death, to: a }))
+    this.actors.forEach(a => {
+      if (!a.isAlive) {
+        this.onEvent({ type: RoomEventType.Death, to: a })
+        if (a.bd.damagedBy.length) {
+          const exp = Math.floor(getExpGainFromStats(a.bd.stats) / a.bd.damagedBy.length)
+          a.bd.damagedBy.forEach(adb => {
+            // alert when the player gets some experience
+            if (adb.bd.isPlayer) {
+              this.onEvent({ type: RoomEventType.Exp, amount: exp, from: adb })
+            }
+            adb.experience += exp
+          })
+        }
+      }
+    })
     this.actors = this.actors.filter(a => a.isAlive)
 
     if (this.actors.length === 0) {
@@ -150,7 +165,9 @@ export class Room {
     element.damaged.push(actor)
     this.onEvent({ type: RoomEventType.Damage, amount: damage, to: actor, from: element.from, x: element.x, y: element.y })
 
-    // TODO: add actor damagedBy
+    if (!actor.bd.damagedBy.includes(element.from)) {
+      actor.bd.damagedBy.push(element.from)
+    }
 
     // if we cannot pass through an enemy, element's time ends here
     if (data.through === false) {

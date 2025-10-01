@@ -15,6 +15,7 @@ export enum Behavior {
 }
 
 type ExpInc = number[]
+const zero = [0]
 const low01 = [0, 1]
 const low02 = [0, 1, 1]
 const low10 = [0, 1, 1, 2]
