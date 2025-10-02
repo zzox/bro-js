@@ -8,9 +8,17 @@ const resizeCanvas = () => {
   const h = canvas.height
   // overflow pixels
   const padding = 0
-  // smallest width on 40 percent
-  const availW = Math.min(canvas.parentElement!.getBoundingClientRect().width, document.body.getBoundingClientRect().width * .4)
-  const availH = canvas.parentElement!.getBoundingClientRect().height
+
+  // specific sizing for mobile
+  const availW = document.body.getBoundingClientRect().width < 800
+    ? document.body.getBoundingClientRect().width
+    // smallest width on 40 percent
+    : Math.min(canvas.parentElement!.getBoundingClientRect().width, document.body.getBoundingClientRect().width * .4)
+
+  const availH = document.body.getBoundingClientRect().width < 800
+    ? 612
+    : canvas.parentElement!.getBoundingClientRect().height
+
   const maxW = Math.floor(availW / (w - padding))
   const maxH = Math.floor(availH / (h - padding))
   // lower than maxMultiplier, but at least two
