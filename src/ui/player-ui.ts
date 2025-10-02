@@ -48,12 +48,6 @@ export const setupPlayerUi = (buttonCallback:BehaviorCallback) => {
   })
 }
 
-/*
-export const setActorCallback = (cb:(num:number, behavior:Behavior) => void) => {
-
-}
-*/
-
 const setImage = (icon:HTMLDivElement, tile:number) => {
   const scale = 2
   const imgWidth = 384

@@ -22,7 +22,7 @@ const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]
 
 // does the actor need the help this spell would provide
 const needsHelp = (actor:Actor, spell:SpellType) =>
-  actor.health / actor.maxHealth < 0.66
+  actor.health / actor.maxHealth < 0.33
 
 export enum RoomState {
   PreBattle,
@@ -64,9 +64,7 @@ export class Room {
   actors:Actor[] = []
   elements:RElement[] = []
 
-  constructor () {
-
-  }
+  constructor () {}
 
   update ():RoomResult | null {
     throw 'Room:update() not implemented'
@@ -142,7 +140,7 @@ export class BattleRoom extends Room {
             if (adb.bd.isPlayer && adb.isAlive) {
               this.onEvent({ type: RoomEventType.Exp, amount: exp, from: adb })
             }
-            adb.experience += exp
+            adb.bd.exp += exp
           })
         }
       }
@@ -170,12 +168,18 @@ export class BattleRoom extends Room {
 
     const damage = Math.floor(data.damage * (1 + p / 128))
 
-    actor.health -= damage
+    actor.health = Math.min(actor.health - damage, actor.maxHealth)
     element.damaged.push(actor)
     this.onEvent({ type: RoomEventType.Damage, amount: damage, to: actor, from: element.from, x: element.x, y: element.y })
 
-    if (!actor.bd.damagedBy.includes(element.from)) {
-      actor.bd.damagedBy.push(element.from)
+    if (damage > 0) {
+      if (!actor.bd.damagedBy.includes(element.from)) {
+        actor.bd.damagedBy.push(element.from)
+      }
+    } else {
+      if (!actor.bd.healedBy.includes(element.from)) {
+        actor.bd.healedBy.push(element.from)
+      }
     }
 
     // if we cannot pass through an enemy, element's time ends here

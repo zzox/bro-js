@@ -15,7 +15,11 @@ export const createLogFromEvent = (event:RoomEvent) => {
 
   switch (event.type) {
     case RoomEventType.Damage:
-      string = `${$span(event.from!.name, 'WHITESMOKE')} did ${$span(event.amount! + '', 'RED')} damage to ${$span(event.to!.name, 'WHITESMOKE')}`
+      if (event.amount! > 0) {
+        string = `${$span(event.from!.name, 'WHITESMOKE')} did ${$span(event.amount! + '', 'RED')} damage to ${$span(event.to!.name, 'WHITESMOKE')}`
+      } else {
+        string = `${$span(event.from!.name, 'WHITESMOKE')} healed ${$span(event.to!.name, 'WHITESMOKE')} for ${$span(Math.abs(event.amount!) + '', 'GREEN')} health`
+      }
       break
     case RoomEventType.Death:
       string = `${$span(event.to!.name, 'WHITESMOKE')} died`
