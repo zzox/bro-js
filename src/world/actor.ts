@@ -1,4 +1,4 @@
-import { actorData, ActorType, Behavior, CompStats, getStatsFromLevel, isPlayerActor } from '../data/actor-data'
+import { actorData, ActorType, Behavior, CompStats, getExpFromLevel, getStatsFromLevel, isPlayerActor } from '../data/actor-data'
 import { Vec2 } from '../data/globals'
 import { names } from '../data/names'
 import { SpellType } from '../data/spell-data'
@@ -34,7 +34,7 @@ export class Actor {
   maxHealth:number
   maxMana:number
   level:number = 10
-  experience:number = 1000
+  experience:number
 
   battleData!:BattleData
 
@@ -42,6 +42,8 @@ export class Actor {
     // this.battleData = {}
     this.name = isPlayerActor(type) ? names[Math.floor(Math.random() * names.length)] : `A ${type}`
     this.type = type
+
+    this.experience = getExpFromLevel(this.level)
 
     const stats = getStatsFromLevel(this.level, actorData.get(this.type)!.stats)
 

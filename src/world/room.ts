@@ -10,12 +10,13 @@ import { Grid, TileItem, makeGrid, mapGI, TileType, makeIntGrid, getGridItem } f
 
 export enum RoomResult {
   EveryoneGone = 'EveryoneGone',
-  EnemiesGone = 'EnemiesGone',
+  // EnemiesGone = 'EnemiesGone',
   PlayersGone = 'PlayersGone',
+  DoneUpdates = 'DoneUpdates',
 }
 
 const genEnemies = ():Actor[] => {
-  return [new Actor(ActorType.Goblin), new Actor(ActorType.Goblin), new Actor(ActorType.Goblin)]
+  return [new Actor(ActorType.Goblin), new Actor(ActorType.Goblin)]
 }
 
 const entranceDiffs = [vec2(0, -1), vec2(1, 0), vec2(0, 1), vec2(-1, 0)]

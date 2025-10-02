@@ -133,6 +133,9 @@ export const isPlayerActor = (actorType:ActorType) =>
 export const getLevelFromExp = (exp:number) =>
   Math.floor(Math.pow(exp, 1/3))
 
+export const getExpFromLevel = (level:number) =>
+  Math.pow(level, 3)
+
 export const getStatsFromLevel = (level:number, stats:Stats):CompStats => {
   const comp:CompStats = {
     [StatType.MaxHealth]: 0,
@@ -154,4 +157,4 @@ export const getStatsFromLevel = (level:number, stats:Stats):CompStats => {
 }
 
 export const getExpGainFromStats = (stats:CompStats) =>
-  stats[StatType.MaxHealth] + stats[StatType.Speed] + stats[StatType.Power] + stats[StatType.Int] + stats[StatType.Dex]
+  2 * (stats[StatType.MaxHealth] + stats[StatType.Speed] + stats[StatType.Power] + stats[StatType.Int] + stats[StatType.Dex])

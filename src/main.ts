@@ -8,7 +8,7 @@ import { forEachGI, TileType } from './world/grid'
 import { Room, BattleRoom, RoomEvent, RoomEventType, RoomResult, RoomState } from './world/room'
 import { ctx } from './ui/canvas'
 import { setBattleUi, setupBattleUi } from './ui/room-ui'
-import { PostRoom, PostRoomEvent } from './world/post-room'
+import { PostRoom, PostRoomEvent, PostRoomEventType } from './world/post-room'
 
 setLogLevel(LogLevel.Info)
 logger.debug('bro :)')
@@ -47,12 +47,20 @@ let gameState:GameState
 let actors:Actor[] = []
 let particles:Particle[] = []
 let fastForward = false
+let fastForward2 = false
+
+const handlePostRoomResult = (result:RoomResult) => {
+  if (result === RoomResult.DoneUpdates) {
+    newRoom()
+  } else {
+    throw 'Bad PostRoom Result'
+  }
+}
 
 const handleRoomResult = (result:RoomResult) => {
   logger.debug('room result', result)
   gameState = GameState.InRoomAfter
   console.log(actors.map(a => a.bd.exp))
-  // actors = actors.filter(a => a.isAlive)
   setTimeout(() => {
     newPostRoom()
   }, 3000)
@@ -62,13 +70,14 @@ const newRoom = () => {
   setBattleUi(true)
   setBehaviorButtons(true)
   gameState = GameState.InRoomPre
+  actors = actors.filter(a => a.isAlive)
   room = new BattleRoom(actors, handleRoomEvent)
   updatePlayerUi(actors)
 }
 
 const newPostRoom = () => {
   setBehaviorButtons(true)
-  gameState = GameState.InRoomPre
+  gameState = GameState.PostRoom
 
   room = new PostRoom(actors, handlePostRoomEvent)
   updatePlayerUi(actors)
@@ -80,17 +89,25 @@ const handleRoomEvent = (event:RoomEvent) => {
   updatePlayerUi(actors)
   // console.timeEnd('asdf')
   if (event.type === RoomEventType.SpellEnd) {
-    particles.push({ tile: spellData.get(event.spell!)!.tile, collTime: 5, time: 30, x: event.x!, y: event.y! })
+    particles.push({ tile: spellData.get(event.spell!)!.tile, collTime: 10, time: 30, x: event.x!, y: event.y! })
   } else if (event.type === RoomEventType.Damage) {
-    particles.push({ tile: -1, color: event.amount! > 0 ? NumberColor.Red : NumberColor.Green, number: event.amount, collTime: 5, time: 60, x: event.x!, y: event.y! - 1 })
+    particles.push({ tile: -1, color: event.amount! > 0 ? NumberColor.Red : NumberColor.Green, number: Math.abs(event.amount!), collTime: 10, time: 30, x: event.x!, y: event.y! - 1 })
   } else if (event.type === RoomEventType.Exp) {
-    particles.push({ tile: -1, color: NumberColor.Gold, number: event.amount, collTime: 5, time: 60, x: event.from!.bd.x!, y: event.from!.bd.y! - 1 })
+    particles.push({ tile: -1, color: NumberColor.Gold, number: event.amount, collTime: 10, time: 30, x: event.from!.bd.x!, y: event.from!.bd.y! - 1 })
   }
   createLogFromEvent(event)
 }
 
 const handlePostRoomEvent = (event:PostRoomEvent) => {
+  logger.debug('post room event', event)
 
+  updatePlayerUi(actors)
+
+  if (event.type === PostRoomEventType.Exp) {
+    particles.push({ tile: -1, color: NumberColor.Gold, number: event.amount!, collTime: 10, time: 30, x: event.from!.x, y: event.from!.y - 1 })
+  } else if (event.type === PostRoomEventType.LvlUp) {
+    particles.push({ tile: 896, collTime: 10, time: 30, x: event.from!.x, y: event.from!.y - 1 })
+  }
 }
 
 const handlePlayerBehavior = (actorNum:number, behaviorNum:number) => {
@@ -137,6 +154,12 @@ const update = () => {
     updateParticles()
   } else if (gameState === GameState.InRoomAfter) {
     room.update()
+    updateParticles()
+  } else if (gameState === GameState.PostRoom) {
+    const result = room.update()
+    if (result) {
+      handlePostRoomResult(result)
+    }
     updateParticles()
   }
 }
@@ -200,7 +223,7 @@ const draw = () => {
 
   particles.forEach(particle => {
     if (particle.tile === -1) {
-      drawNumbers(Math.abs(particle.number!), particle.color!, particle.x, particle.y)
+      drawNumbers(particle.number!, particle.color!, particle.x, particle.y)
     } else {
       drawTile(particle.tile, particle.x, particle.y)
     }
@@ -209,7 +232,10 @@ const draw = () => {
 
 const next = () => {
   let updates = 1
-  if (fastForward) updates += 7
+  if (fastForward) {
+    updates += 7
+    if (fastForward2) updates += 24
+  }
   for (let i = 0; i < updates; i++) update()
   draw()
 
@@ -255,11 +281,15 @@ const run = async () => {
   document.onkeydown = (event:KeyboardEvent) => {
     if (event.key === 'f') {
       fastForward = true
+    } else if (event.key === 'g') {
+      fastForward2 = true
     }
   }
   document.onkeyup = (event:KeyboardEvent) => {
     if (event.key === 'f') {
       fastForward = false
+    } else if (event.key === 'g') {
+      fastForward2 = false
     }
   }
 
